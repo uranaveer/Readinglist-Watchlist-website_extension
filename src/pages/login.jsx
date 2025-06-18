@@ -1,4 +1,6 @@
 import {Link} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../provider/authProvider";
 
 const Linkstyle ={
   textDecoration: "none",
@@ -6,6 +8,14 @@ const Linkstyle ={
 }
 
 function Login() {
+  const { setToken } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    setToken("this is a test token");
+    navigate("/", { replace: true });
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-6 rounded shadow-md w-80 space-y-2">
@@ -21,7 +31,7 @@ function Login() {
           placeholder="Password"
           className="w-full px-4 py-2 border rounded"
         />
-        <button
+        <button onClick = {handleLogin}
           id="login_button"
           className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
         >
