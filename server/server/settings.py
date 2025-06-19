@@ -115,7 +115,7 @@ REST_FRAMEWORK = {
     ]
 }
 
-AUTH_USER_MODEL = 'app.UserData'
+# AUTH_USER_MODEL = 'app.UserData'
 
 
 
