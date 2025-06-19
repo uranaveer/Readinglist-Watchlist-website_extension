@@ -186,6 +186,22 @@ def login(request):
         }, status=status.HTTP_200_OK)
     else:
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+
+@api_view(['POST'])
+def initiate_email_verification(request):
+    email = request.data.get('email')
+
+    try:
+        user = UserData.objects.get(email=email)
+    except UserData.DoesNotExist:
+        return Response({"message":"No user found"},status=status.HTTP_400_BAD_REQUEST)
+    
+    user.email_otp = generate_alphanumeric_otp()
+    user.otp_cooldown =timezone.now() + timedelta(minutes=10)
+    send_otp_email(user.email,user.email_otp)
+    user.save()
+    return Response({"message":"otp sent successfully"}, status=status.HTTP_200_OK)
 
 
 
