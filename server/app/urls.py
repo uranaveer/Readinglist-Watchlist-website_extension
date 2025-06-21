@@ -7,5 +7,6 @@ urlpatterns = [
     path('validate_username/',views.validate_username,name="validate username"),
     path('register_username/',views.register_username,name="register username"),
     path('register_password/',views.register_password,name="register password"),
-    path('login/',views.login,name="register password"),
+    path('login/',views.login,name="login"),
+    path('sign_up/',views.sign_up,name="sign up")
 ]
