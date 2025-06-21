@@ -98,7 +98,7 @@ def validate_otp(request):
 
     
 
-@api_view(['POST'])
+@api_view(['POST','OPTIONS'])
 def register_email(request):
     email=request.data.get('email')
     
@@ -117,7 +117,7 @@ def register_email(request):
     return Response({"message":"email stored"},status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
+@api_view(['POST','OPTIONS'])
 def validate_username(request):
     username = request.data.get('username')
 
@@ -127,7 +127,7 @@ def validate_username(request):
     return Response({"message":"username available"},status=status.HTTP_200_OK)
 
 
-@api_view(['PUT'])
+@api_view(['PUT','OPTIONS'])
 def register_username(request):
     username = request.data.get('username')
     email = request.data.get('email')
@@ -144,7 +144,7 @@ def register_username(request):
     return Response({"message":"username registered"},status=status.HTTP_200_OK)
 
 
-@api_view(['PUT'])
+@api_view(['PUT','OPTIONS'])
 def register_password(request):
     email = request.data.get('email')
     password = request.data.get('password')
@@ -157,11 +157,40 @@ def register_password(request):
     return Response({"message":"Password registered"},status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
+@api_view(['POST','OPTIONS'])
+def sign_up(request):
+    email = request.data.get("email")
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    print(f"sign_up {request.data}")
+
+    if UserData.objects.filter(email=email).exists():
+        return Response({"message":"email already in use"},status=status.HTTP_400_BAD_REQUEST)
+    if UserData.objects.filter(username=username).exists():
+        return Response({"message":"username already in use"},status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = UserData(email=email,username=username)
+        
+    except IntegrityError:
+        return Response({"message": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({"message":"Something went wrong"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    user.set_password(password)
+    user.save()
+    return Response({"message":"User Created"},status=status.HTTP_201_CREATED)
+    
+    
+
+
+@api_view(['POST','OPTIONS'])
 def login(request):
     email = request.data.get("email")
     username = request.data.get("username")
     password = request.data.get("password")
+    print(f"request data {request.data}")
 
     if not email and not username:
         return Response({"message": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
@@ -176,7 +205,7 @@ def login(request):
 
     authenticated_user = authenticate(email=user.email, password=password)
 
-    if user is not None:
+    if authenticated_user is not None:
         refresh = RefreshToken.for_user(user)
         return Response({
             'refresh': str(refresh),
@@ -186,6 +215,22 @@ def login(request):
         }, status=status.HTTP_200_OK)
     else:
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+
+@api_view(['POST','OPTIONS'])
+def initiate_email_verification(request):
+    email = request.data.get('email')
+
+    try:
+        user = UserData.objects.get(email=email)
+    except UserData.DoesNotExist:
+        return Response({"message":"No user found"},status=status.HTTP_400_BAD_REQUEST)
+    
+    user.email_otp = generate_alphanumeric_otp()
+    user.otp_cooldown =timezone.now() + timedelta(minutes=10)
+    send_otp_email(user.email,user.email_otp)
+    user.save()
+    return Response({"message":"otp sent successfully"}, status=status.HTTP_200_OK)
 
 
 
