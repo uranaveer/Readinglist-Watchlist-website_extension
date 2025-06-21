@@ -4,6 +4,8 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import Login from "../pages/login";
 import Logout from "../pages/Logout";
 import Sign_up from "../pages/sign_up";
+import Home from "../pages/home";
+import Post from "../pages/userhome";
 
 const Routes = () => {
   const { token } = useAuth();
@@ -28,7 +30,7 @@ const Routes = () => {
       children: [
         {
           path: "",
-          element: <div>User Home Page</div>,
+          element: <Post/>,
         },
         {
           path: "/profile",
@@ -46,7 +48,7 @@ const Routes = () => {
   const routesForNotAuthenticatedOnly = [
     {
       path: "/",
-      element: <div>Home Page</div>,
+      element: <Home />,
     },
     {
       path: "/login",
