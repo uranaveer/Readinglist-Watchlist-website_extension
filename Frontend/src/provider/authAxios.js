@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create an Axios instance for authenticated requests
 const authAxios = axios.create({
-  baseURL: "http://localhost:8000", // change this to your backend's base URL
+  baseURL: "http://uranaveer.xyz", // change this to your backend's base URL
 });
 
 // Interceptor for handling token refresh
