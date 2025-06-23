@@ -9,6 +9,7 @@ from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin,BaseUse
 class UserData(AbstractBaseUser,PermissionsMixin):
     username = models.CharField(max_length=250,blank=True,null=True)
     email = models.EmailField(unique=True)
+    avatar_id = models.IntegerField(default=1)
     is_emailverified = models.BooleanField(default=False)
     email_otp = models.CharField(max_length=250,blank=True,null=True)
     otp_cooldown = models.DateTimeField(blank=True,null=True)
@@ -37,6 +38,7 @@ class Post(models.Model):
     link =models.URLField(max_length=2000)
     description = models.TextField()
     user = models.ForeignKey(UserData, on_delete=models.CASCADE, related_name="posts")
+    created_at= models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title

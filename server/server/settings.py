@@ -27,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.ngrok-free.app','.loclx.io']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','uranaveer.xyz']
 
 
 # Application definition
