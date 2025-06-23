@@ -74,6 +74,8 @@ def send_otp_email(email,otp):
 
 @api_view(['POST','OPTIONS'])
 def validate_otp(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     email = request.data.get('email')
     otp = request.data.get('otp')
     
@@ -102,6 +104,8 @@ def validate_otp(request):
 
 @api_view(['POST','OPTIONS'])
 def register_email(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     email=request.data.get('email')
     
     if UserData.objects.filter(email=email).exists():
@@ -121,6 +125,8 @@ def register_email(request):
 
 @api_view(['GET','OPTIONS'])
 def validate_username(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     username = request.data.get('username')
 
     if UserData.objects.filter(username=username).exists():
@@ -131,6 +137,8 @@ def validate_username(request):
 
 @api_view(['PUT','OPTIONS'])
 def register_username(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     username = request.data.get('username')
     email = request.data.get('email')
     if UserData.objects.filter(username=username).exists():
@@ -148,6 +156,8 @@ def register_username(request):
 
 @api_view(['PUT','OPTIONS'])
 def register_password(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     email = request.data.get('email')
     password = request.data.get('password')
     try:
@@ -161,6 +171,8 @@ def register_password(request):
 
 @api_view(['POST','OPTIONS'])
 def sign_up(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     email = request.data.get("email")
     username = request.data.get('username')
     password = request.data.get('password')
@@ -189,6 +201,8 @@ def sign_up(request):
 
 @api_view(['POST','OPTIONS'])
 def login(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     email = request.data.get("email")
     username = request.data.get("username")
     password = request.data.get("password")
@@ -221,6 +235,8 @@ def login(request):
 
 @api_view(['POST','OPTIONS'])
 def initiate_email_verification(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     email = request.data.get('email')
 
     try:
@@ -238,6 +254,8 @@ def initiate_email_verification(request):
 @api_view(['GET','OPTIONS'])
 @permission_classes([IsAuthenticated])
 def test_api(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     user = request.user
     return Response({
         "username": user.username,
@@ -249,7 +267,10 @@ def test_api(request):
 @api_view(['PUT','OPTIONS'])
 @permission_classes([IsAuthenticated])
 def set_avatar(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     user = request.user
+
     user.avatar_id = request.data.get('new_avatar_id')
     return Response({"message":"New avatar set"},status=status.HTTP_200_OK)
 
@@ -258,6 +279,8 @@ def set_avatar(request):
 @permission_classes([IsAuthenticated])
 
 def add_post(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     user = request.user
     title = request.data.get('title')
     link = request.data.get('link')
@@ -275,6 +298,8 @@ def add_post(request):
 @api_view(['GET','OPTIONS'])
 @permission_classes([IsAuthenticated])
 def get_entries(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     page_number = int(request.data.get('page_number',1))
     page_size = 50
     start_index = (page_number-1)*page_size
