@@ -2,7 +2,8 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .models import UserData, Post
@@ -17,6 +18,7 @@ from django.db import IntegrityError
 import environ
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from .serializer import PostSerializers
 
 
 # Create your views here.
@@ -70,7 +72,7 @@ def send_otp_email(email,otp):
         print(f"Error: {e}")
 
 
-@api_view(['POST'])
+@api_view(['POST','OPTIONS'])
 def validate_otp(request):
     email = request.data.get('email')
     otp = request.data.get('otp')
@@ -117,7 +119,7 @@ def register_email(request):
     return Response({"message":"email stored"},status=status.HTTP_200_OK)
 
 
-@api_view(['POST','OPTIONS'])
+@api_view(['GET','OPTIONS'])
 def validate_username(request):
     username = request.data.get('username')
 
@@ -231,6 +233,59 @@ def initiate_email_verification(request):
     send_otp_email(user.email,user.email_otp)
     user.save()
     return Response({"message":"otp sent successfully"}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def test_api(request):
+    user = request.user
+    return Response({
+        "username": user.username,
+        "email": user.email,
+        "message": f"Hi {user.username}, you're authenticated!"
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def set_avatar(request):
+    user = request.user
+    user.avatar_id = request.data.get('new_avatar_id')
+    return Response({"message":"New avatar set"},status=status.HTTP_200_OK)
+
+
+@api_view(['POST','OPTIONS'])
+@permission_classes([IsAuthenticated])
+
+def add_post(request):
+    user = request.user
+    title = request.data.get('title')
+    link = request.data.get('link')
+    description = request.data.get('description')
+
+    post = Post(title=title,link=link,description=description)
+    post.user=user
+
+    post.save()
+
+    return Response({'message':"Post Created"},status=status.HTTP_201_CREATED)
+
+
+
+@api_view(['GET','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def get_entries(request):
+    page_number = int(request.data.get('page_number',1))
+    page_size = 50
+    start_index = (page_number-1)*page_size
+    end_index = start_index+page_size
+
+    entries = Post.objects.order_by('-created_at')[start_index:end_index]
+    serializer = PostSerializers(entries,many=True)
+
+    return Response({"data":serializer.data},status=status.HTTP_200_OK)
+
+
 
 
 
