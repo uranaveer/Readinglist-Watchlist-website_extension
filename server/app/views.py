@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.shortcuts import render
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,57 +14,6 @@ from .utils import generate_alphanumeric_otp, send_otp_email
 
 
 # Create your views here.
-@api_view(['POST','OPTIONS'])
-def validate_otp(request):
-    if request.method == 'OPTIONS':
-        return Response(status=status.HTTP_200_OK)
-    email = request.data.get('email')
-    otp = request.data.get('otp')
-    
-    try:
-        user = UserData.objects.get(email=email)
-    except UserData.DoesNotExist:
-        return Response({"message":"inavlid email"},status=status.HTTP_400_BAD_REQUEST)
-
-    cooldown_time = user.otp_cooldown
-    
-    if cooldown_time < timezone.now():
-        user.email_otp = None
-        user.save()
-        return Response({"message":"otp expired"},status=status.HTTP_408_REQUEST_TIMEOUT)
-    
-    if otp == user.email_otp:
-        user.is_emailverified = True
-        user.email_otp=None
-        user.save()
-        return Response({"message":"otp validation successful"},status=status.HTTP_200_OK)
-    else:
-        user.save()
-        return Response({"message":"otp validation Un-successful"},status=status.HTTP_401_UNAUTHORIZED)
-
-    
-
-@api_view(['POST','OPTIONS'])
-def register_email(request):
-    if request.method == 'OPTIONS':
-        return Response(status=status.HTTP_200_OK)
-    email=request.data.get('email')
-    
-    if UserData.objects.filter(email=email).exists():
-        return Response({"message":"email already exists"},status = status.HTTP_400_BAD_REQUEST)
-    try:
-        user = UserData(email=email)
-        user.email_otp = generate_alphanumeric_otp()
-        user.otp_cooldown = timezone.now() + timedelta(minutes=10)
-        user.save()
-        send_otp_email(user.email,user.email_otp)
-    except IntegrityError:
-        return Response({"message": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
-    except:
-        return Response({"message":"Something went wrong"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response({"message":"email stored"},status=status.HTTP_200_OK)
-
-
 @api_view(['GET','OPTIONS'])
 def validate_username(request):
     if request.method == 'OPTIONS':
@@ -78,38 +26,6 @@ def validate_username(request):
     return Response({"message":"username available"},status=status.HTTP_200_OK)
 
 
-@api_view(['PUT','OPTIONS'])
-def register_username(request):
-    if request.method == 'OPTIONS':
-        return Response(status=status.HTTP_200_OK)
-    username = request.data.get('username')
-    email = request.data.get('email')
-    if UserData.objects.filter(username=username).exists():
-        return Response({"message":"username already in use"}, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        user = UserData.objects.get(email=email)
-    except UserData.DoesNotExist:
-        return Response({"message": "user not found"}, status=status.HTTP_404_NOT_FOUND)
-    user.username = username
-    user.save()
-
-    return Response({"message":"username registered"},status=status.HTTP_200_OK)
-
-
-@api_view(['PUT','OPTIONS'])
-def register_password(request):
-    if request.method == 'OPTIONS':
-        return Response(status=status.HTTP_200_OK)
-    email = request.data.get('email')
-    password = request.data.get('password')
-    try:
-        user = UserData.objects.get(email=email)
-    except UserData.DoesNotExist:
-        return Response({"message": "user not found"}, status=status.HTTP_404_NOT_FOUND)
-    user.set_password(password)
-    user.save()
-    return Response({"message":"Password registered"},status=status.HTTP_200_OK)
 
 
 @api_view(['POST','OPTIONS'])
@@ -176,7 +92,91 @@ def login(request):
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
 
+
 @api_view(['POST','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def validate_otp(request):
+    if request.method == 'OPTIONS':
+        return Response(status=status.HTTP_200_OK)
+    
+    user=request.user
+    cooldown_time = user.otp_cooldown
+    otp = request.data.get('otp')
+    
+    if cooldown_time < timezone.now():
+        user.email_otp = None
+        user.save()
+        return Response({"message":"otp expired"},status=status.HTTP_408_REQUEST_TIMEOUT)
+    
+    if otp == user.email_otp:
+        user.is_emailverified = True
+        user.email_otp=None
+        user.save()
+        return Response({"message":"otp validation successful"},status=status.HTTP_200_OK)
+    else:
+        user.save()
+        return Response({"message":"otp validation Un-successful"},status=status.HTTP_401_UNAUTHORIZED)
+
+    
+
+@api_view(['POST','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def change_email(request):
+    if request.method == 'OPTIONS':
+        return Response(status=status.HTTP_200_OK)
+    email=request.data.get('email')
+    user=request.user
+
+    if not email:
+        return Response({"message": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user.email = email
+        user.email_otp = generate_alphanumeric_otp()
+        user.otp_cooldown = timezone.now() + timedelta(minutes=10)
+        user.save()
+        send_otp_email(user.email,user.email_otp)
+    except IntegrityError:
+        return Response({"message": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(f"Exception {e}")
+        return Response({"message":"Something went wrong"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response({"message":"email stored"},status=status.HTTP_200_OK)
+
+
+
+@api_view(['PUT','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def change_username(request):
+    if request.method == 'OPTIONS':
+        return Response(status=status.HTTP_200_OK)
+    username = request.data.get('username')
+    user =request.user
+    if UserData.objects.filter(username=username).exists():
+        return Response({"message":"username already in use"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    user.username = username
+    user.save()
+
+    return Response({"message":"username registered"},status=status.HTTP_200_OK)
+
+
+
+@api_view(['PUT','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    if request.method == 'OPTIONS':
+        return Response(status=status.HTTP_200_OK)
+    user = request.user
+    password = request.data.get('password')
+    user.set_password(password)
+    user.save()
+    return Response({"message":"Password registered"},status=status.HTTP_200_OK)
+
+
+
+@api_view(['POST','OPTIONS'])
+@permission_classes([IsAuthenticated])
 def initiate_email_verification(request):
     if request.method == 'OPTIONS':
         return Response(status=status.HTTP_200_OK)
@@ -220,7 +220,6 @@ def set_avatar(request):
 
 @api_view(['POST','OPTIONS'])
 @permission_classes([IsAuthenticated])
-
 def add_post(request):
     if request.method == 'OPTIONS':
         return Response(status=status.HTTP_200_OK)
