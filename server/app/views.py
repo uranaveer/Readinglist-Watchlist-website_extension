@@ -1,6 +1,4 @@
 from django.shortcuts import render
-
-# Create your views here.
 from django.shortcuts import render
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -9,73 +7,18 @@ from rest_framework import status
 from .models import UserData, Post
 from django.utils import timezone
 from datetime import timedelta
-import secrets
-import string
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from django.db import IntegrityError
-import environ
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializer import PostSerializers
+from .utils import generate_alphanumeric_otp, send_otp_email
 
 
 # Create your views here.
-
-env = environ.Env()
-environ.Env.read_env()
-
-def generate_alphanumeric_otp(length=6):
-    chars = string.ascii_letters + string.digits
-    return ''.join(secrets.choice(chars) for _ in range(length))
-
-
-def send_otp_email(email,otp):
-    sender_email =  env("SENDERS_MAIL")
-    receiver_email = email
-    password = env("APP_PASSWORD")
-    message = MIMEMultipart("alternative")
-    message["Subject"] = "Your One-Time Password (OTP)"
-    message["From"] = sender_email
-    message["To"] = receiver_email
-
-    html_content = f"""
-    <html>
-        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-            <div style="max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-            <h2 style="color: #333; text-align: center;">🔐 Your OTP Code</h2>
-            <p style="font-size: 16px; color: #555;">
-                Dear user,<br><br>
-                Use the following One-Time Password (OTP) to proceed with your action. This OTP is valid for the next 10 minutes.
-            </p>
-            <div style="text-align: center; margin: 30px 0;">
-                <span style="font-size: 32px; font-weight: bold; color: #2d89ef; letter-spacing: 4px;">{otp}</span>
-            </div>
-            <p style="font-size: 14px; color: #888; text-align: center;">
-                If you did not request this OTP, please ignore this message or contact support.
-            </p>
-            </div>
-        </body>
-    </html>
-"""
-    html_part = MIMEText(html_content, "html")
-    message.attach(html_part)
-
-    try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, message.as_string())
-            print("OTP email sent successfully!")
-    except Exception as e:
-        print(f"Error: {e}")
-
-
 @api_view(['POST','OPTIONS'])
 def validate_otp(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     email = request.data.get('email')
     otp = request.data.get('otp')
     
@@ -105,7 +48,7 @@ def validate_otp(request):
 @api_view(['POST','OPTIONS'])
 def register_email(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     email=request.data.get('email')
     
     if UserData.objects.filter(email=email).exists():
@@ -126,7 +69,7 @@ def register_email(request):
 @api_view(['GET','OPTIONS'])
 def validate_username(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     username = request.data.get('username')
 
     if UserData.objects.filter(username=username).exists():
@@ -138,7 +81,7 @@ def validate_username(request):
 @api_view(['PUT','OPTIONS'])
 def register_username(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     username = request.data.get('username')
     email = request.data.get('email')
     if UserData.objects.filter(username=username).exists():
@@ -157,7 +100,7 @@ def register_username(request):
 @api_view(['PUT','OPTIONS'])
 def register_password(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     email = request.data.get('email')
     password = request.data.get('password')
     try:
@@ -172,7 +115,7 @@ def register_password(request):
 @api_view(['POST','OPTIONS'])
 def sign_up(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     email = request.data.get("email")
     username = request.data.get('username')
     password = request.data.get('password')
@@ -202,7 +145,7 @@ def sign_up(request):
 @api_view(['POST','OPTIONS'])
 def login(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     email = request.data.get("email")
     username = request.data.get("username")
     password = request.data.get("password")
@@ -236,7 +179,7 @@ def login(request):
 @api_view(['POST','OPTIONS'])
 def initiate_email_verification(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     email = request.data.get('email')
 
     try:
@@ -255,7 +198,7 @@ def initiate_email_verification(request):
 @permission_classes([IsAuthenticated])
 def test_api(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     user = request.user
     return Response({
         "username": user.username,
@@ -268,7 +211,7 @@ def test_api(request):
 @permission_classes([IsAuthenticated])
 def set_avatar(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     user = request.user
 
     user.avatar_id = request.data.get('new_avatar_id')
@@ -280,7 +223,7 @@ def set_avatar(request):
 
 def add_post(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
     user = request.user
     title = request.data.get('title')
     link = request.data.get('link')
@@ -299,16 +242,48 @@ def add_post(request):
 @permission_classes([IsAuthenticated])
 def get_entries(request):
     if request.method == 'OPTIONS':
-        return Response(status=200)
-    page_number = int(request.data.get('page_number',1))
-    page_size = 50
+        return Response(status=status.HTTP_200_OK)
+    try:
+        page_number = int(request.query_params.get('page_number', 1))
+        if page_number < 1:
+            page_number = 1
+    except ValueError:
+        page_number = 1
+    page_size = 10
     start_index = (page_number-1)*page_size
     end_index = start_index+page_size
 
-    entries = Post.objects.order_by('-created_at')[start_index:end_index]
-    serializer = PostSerializers(entries,many=True)
+    prev_start = max((page_number-2)*page_size,0)
+    prev_end = prev_start+page_size
 
-    return Response({"data":serializer.data},status=status.HTTP_200_OK)
+    next_start = (page_number)*page_size
+    next_end = next_start+page_size
+
+    queryset = Post.objects.order_by('-created_at')
+
+    entries = queryset[start_index:end_index]
+    prev_entries = queryset[prev_start:prev_end]
+    next_entries = queryset[next_start:next_end]
+
+
+    serializer = PostSerializers(entries,many=True)
+    prev_serializer = PostSerializers(prev_entries,many=True)
+    next_serializer = PostSerializers(next_entries,many=True)
+
+    if page_number ==1:
+        return Response({
+        "prev data":[],
+        "data":serializer.data,
+        "next data":next_serializer.data
+                     },
+                    status=status.HTTP_200_OK)
+
+    return Response({
+        "prev data":prev_serializer.data,
+        "data":serializer.data,
+        "next data":next_serializer.data
+                     },
+                    status=status.HTTP_200_OK)
 
 
 
