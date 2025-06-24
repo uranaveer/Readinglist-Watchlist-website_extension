@@ -1,4 +1,4 @@
-let token = null;
+let token ;
 
 function getArticleText() {
   const article = document.querySelector("article");
@@ -8,20 +8,22 @@ function getArticleText() {
   return paragraphs.map((p) => p.innerText).join("\n");
 }
 
-function handleArticlePage() {
+function handleArticlePage(token) {
   const videoUrl = window.location.href;
   const articleText = getArticleText();
+  const title = document.querySelector('title')?.innerText?.trim();
   console.log("Article Text:", articleText);
 
   const payload = {
-    url: videoUrl,
-    summary: "This is the AI-generated summary of the page"
+    link: videoUrl,
+    title: title,
+    description: articleText
   };
 
-  fetch("https://your-backend.com/api/save/", {
+  fetch("https://e8a0-103-37-201-225.ngrok-free.app/api/add_post/", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json",  
       "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify(payload)
@@ -39,7 +41,7 @@ function handleArticlePage() {
 
 }
 
-function handleYouTubePage() {
+function handleYouTubePage(token) {
   const title = document.querySelector('div#title h1 > yt-formatted-string')?.innerText?.trim();
   const description = document.querySelector('ytd-text-inline-expander')?.textContent?.trim();
   const videoUrl = window.location.href;
@@ -49,15 +51,15 @@ function handleYouTubePage() {
   console.log("Description:", description);
 
   const payload = {
-    url: videoUrl,
+    link: videoUrl,
     title: title,
-    summary: "This is the AI-generated summary of the page"
+    description: description
   };
 
-  fetch("https://your-backend.com/api/save/", {
+  fetch("https://e8a0-103-37-201-225.ngrok-free.app/api/add_post/", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json",  
       "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify(payload)
@@ -85,9 +87,9 @@ function setupPageWatcher() {
     }
 
     if (currentUrl.includes("youtube.com/watch")) {
-      handleYouTubePage();
+      handleYouTubePage(token);
     } else {
-      handleArticlePage();
+      handleArticlePage(token);
     }
   }
 
@@ -124,7 +126,7 @@ chrome.storage.sync.get("authToken", (data) => {
   }
   console.log("User is logged in. Token:", token);
 
-  fetch("https://your-backend.com/api/me/", {
+  fetch("https://e8a0-103-37-201-225.ngrok-free.app/", {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${token}`
@@ -149,7 +151,7 @@ chrome.storage.sync.get("incognito", (data) => {
     return;
   }
 
-  setupPageWatcher();
+  setupPageWatcher(token);
 });
 
 
