@@ -3,10 +3,10 @@ from . import views
 
 urlpatterns = [
     path('validate_otp/',views.validate_otp,name="validate otp"),
-    path('register_email/',views.register_email,name="register email"),
+    path('change_email/',views.change_email,name="change email"),
     path('validate_username/',views.validate_username,name="validate username"),
-    path('register_username/',views.register_username,name="register username"),
-    path('register_password/',views.register_password,name="register password"),
+    path('change_username/',views.change_username,name="change username"),
+    path('change_password/',views.change_password,name="change password"),
     path('login/',views.login,name="login"),
     path('sign_up/',views.sign_up,name="sign up"),
     path('test/',views.test_api,name="test"),
