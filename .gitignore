@@ -3,3 +3,4 @@ server/app/__pycache__
 server/db.sqlite3
 .vscode/
 server/venv
+*.pem
