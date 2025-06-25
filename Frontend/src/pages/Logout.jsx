@@ -7,6 +7,7 @@ const Logout = () => {
 
   const handleLogout = () => {
     setToken();
+    localStorage.removeItem("refreshToken");
     navigate("/", { replace: true });
   };
 

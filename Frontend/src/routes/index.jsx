@@ -5,7 +5,8 @@ import Login from "../pages/login";
 import Logout from "../pages/Logout";
 import Sign_up from "../pages/sign_up";
 import Home from "../pages/home";
-import Post from "../pages/userhome";
+import UserHome from "../pages/userhome";
+import Profile from "../pages/profile";
 
 const Routes = () => {
   const { token } = useAuth();
@@ -30,11 +31,11 @@ const Routes = () => {
       children: [
         {
           path: "",
-          element: <Post/>,
+          element: <UserHome/>,
         },
         {
           path: "/profile",
-          element: <div>User Profile</div>,
+          element: <Profile/>
         },
         {
           path: "/logout",
