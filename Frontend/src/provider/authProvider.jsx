@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
+  axios.defaults.baseURL = 'http://localhost:8000';
   const [token, setToken_] = useState(localStorage.getItem("token"));
 
   // Update both token and refreshToken in state/storage

@@ -17,17 +17,23 @@ export const ProtectedRoute = () => {
         setLoading(false);
         return;
       }
-
-      // Try to refresh the token using refreshToken
+      
       const refreshToken = localStorage.getItem("refreshToken");
       if (refreshToken) {
         try {
-          const res = await axios.post("/auth/refresh", { refreshToken });
-          const newAccessToken = res.data.accessToken;
+          const res = await axios.post("/api/token/refresh/", {
+            refresh: localStorage.getItem("refreshToken"),
+          });
+          console.log(res);
+          const newAccessToken = res.data.access;
           setToken(newAccessToken);
+          localStorage.setItem("token", newAccessToken);
           setIsAuthenticated(true);
+          authAxios.defaults.headers.common["Authorization"] = "Bearer " + newAccessToken;
         } catch (err) {
           console.error("Refresh failed", err);
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
           setIsAuthenticated(false);
         }
       }
