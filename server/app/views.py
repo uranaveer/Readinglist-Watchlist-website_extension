@@ -14,6 +14,12 @@ from .utils import generate_alphanumeric_otp, send_otp_email
 
 
 # Create your views here.
+
+@api_view(['GET'])
+def helloworld(request):
+    return Response({"message":'Hello World Amigo'},status=status.HTTP_200_OK)
+
+
 @api_view(['GET','OPTIONS'])
 def validate_username(request):
     if request.method == 'OPTIONS':
@@ -26,8 +32,6 @@ def validate_username(request):
     return Response({"message":"username available"},status=status.HTTP_200_OK)
 
 
-
-
 @api_view(['POST','OPTIONS'])
 def sign_up(request):
     if request.method == 'OPTIONS':
@@ -37,7 +41,6 @@ def sign_up(request):
     password = request.data.get('password')
 
     print(f"sign_up {request.data}")
-
     if UserData.objects.filter(email=email).exists():
         return Response({"message":"email already in use"},status=status.HTTP_400_BAD_REQUEST)
     if UserData.objects.filter(username=username).exists():
@@ -121,58 +124,31 @@ def validate_otp(request):
 
 @api_view(['POST','OPTIONS'])
 @permission_classes([IsAuthenticated])
-def change_email(request):
-    if request.method == 'OPTIONS':
-        return Response(status=status.HTTP_200_OK)
-    email=request.data.get('email')
-    user=request.user
-
-    if not email:
-        return Response({"message": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        user.email = email
-        user.email_otp = generate_alphanumeric_otp()
-        user.otp_cooldown = timezone.now() + timedelta(minutes=10)
-        user.save()
-        send_otp_email(user.email,user.email_otp)
-    except IntegrityError:
-        return Response({"message": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
-    except Exception as e:
-        print(f"Exception {e}")
-        return Response({"message":"Something went wrong"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response({"message":"email stored"},status=status.HTTP_200_OK)
-
-
-
-@api_view(['PUT','OPTIONS'])
-@permission_classes([IsAuthenticated])
-def change_username(request):
-    if request.method == 'OPTIONS':
-        return Response(status=status.HTTP_200_OK)
-    username = request.data.get('username')
-    user =request.user
-    if UserData.objects.filter(username=username).exists():
-        return Response({"message":"username already in use"}, status=status.HTTP_400_BAD_REQUEST)
-    
-    user.username = username
-    user.save()
-
-    return Response({"message":"username registered"},status=status.HTTP_200_OK)
-
-
-
-@api_view(['PUT','OPTIONS'])
-@permission_classes([IsAuthenticated])
-def change_password(request):
-    if request.method == 'OPTIONS':
-        return Response(status=status.HTTP_200_OK)
+def change_user_data(request):
     user = request.user
+    email = request.data.get('email')
     password = request.data.get('password')
-    user.set_password(password)
-    user.save()
-    return Response({"message":"Password registered"},status=status.HTTP_200_OK)
+    username = request.data.get('username')
+    avatar_id = request.data.get('avatar_id')
 
+    if email and email != user.email:
+        if UserData.objects.filter(email=email).exclude(id=user.id).exists():
+            return Response({"message": "email already in use"}, status=status.HTTP_400_BAD_REQUEST)
+        user.email = email
+        user.is_emailverified = False
+
+    if username and username != user.username:
+        if UserData.objects.filter(username=username).exclude(id=user.id).exists():
+            return Response({"message": "username already in use"}, status=status.HTTP_400_BAD_REQUEST)
+        user.username = username
+    
+    if  password:
+        user.set_password(password)
+    if avatar_id:
+        user.avatar_id = avatar_id
+    
+    user.save()
+    return Response({"message":"details changed successfully"},status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST','OPTIONS'])
@@ -207,22 +183,13 @@ def test_api(request):
     }, status=status.HTTP_200_OK)
 
 
-@api_view(['PUT','OPTIONS'])
-@permission_classes([IsAuthenticated])
-def set_avatar(request):
-    if request.method == 'OPTIONS':
-        return Response(status=status.HTTP_200_OK)
-    user = request.user
-
-    user.avatar_id = request.data.get('new_avatar_id')
-    return Response({"message":"New avatar set"},status=status.HTTP_200_OK)
-
-
 @api_view(['POST','OPTIONS'])
 @permission_classes([IsAuthenticated])
 def add_post(request):
     if request.method == 'OPTIONS':
         return Response(status=status.HTTP_200_OK)
+    print(f"Title : {request.data.get('title')}")
+    print(f"Link : {request.data.get('link')}")
     user = request.user
     title = request.data.get('title')
     link = request.data.get('link')
@@ -283,6 +250,25 @@ def get_entries(request):
         "next data":next_serializer.data
                      },
                     status=status.HTTP_200_OK)
+
+
+
+@api_view(['GET','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def user_data(request):
+    user = request.user
+    
+    return Response({'username':user.username,
+                     'avatar_id':user.avatar_id,
+                     },status=status.HTTP_200_OK)
+
+@api_view(['GET','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def user_posts(request):
+    user = request.user
+    posts = Post.objects.filter(user_id=user.id).order_by('-created_at')
+    serializer = PostSerializers(posts,many=True)
+    return Response({'data':serializer.data},status=status.HTTP_200_OK)
 
 
 

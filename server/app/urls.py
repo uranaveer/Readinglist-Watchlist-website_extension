@@ -2,15 +2,16 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('validate_otp/',views.validate_otp,name="validate otp"),
-    path('change_email/',views.change_email,name="change email"),
-    path('validate_username/',views.validate_username,name="validate username"),
-    path('change_username/',views.change_username,name="change username"),
-    path('change_password/',views.change_password,name="change password"),
-    path('login/',views.login,name="login"),
-    path('sign_up/',views.sign_up,name="sign up"),
-    path('test/',views.test_api,name="test"),
-    path('set_avatar/',views.set_avatar,name="set avatar"),
-    path('add_post/',views.add_post,name="add Post"),
-    path('get_data/',views.get_entries,name="Get Data"),
+    path('helloworld/', views.helloworld, name="hello world"),
+    path('validate-otp/', views.validate_otp, name="validate otp"),
+    path('change-user-data/', views.change_user_data, name="change data"),
+    path('validate-username/', views.validate_username, name="validate username"),
+    path('login/', views.login, name="login"),
+    path('sign-up/', views.sign_up, name="sign up"),
+    path('test-protected/', views.test_api, name="test"),
+    path('add-post/', views.add_post, name="add post"),
+    path('get-data/', views.get_entries, name="get data"),
+    path('get-user-posts/', views.user_posts, name="get user posts"),
+    path('user-data/',views.user_data, name='User data')
 ]
+
