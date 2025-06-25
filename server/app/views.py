@@ -253,6 +253,25 @@ def get_entries(request):
 
 
 
+@api_view(['GET','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def user_data(request):
+    user = request.user
+    
+    return Response({'username':user.username,
+                     'avatar_id':user.avatar_id,
+                     },status=status.HTTP_200_OK)
+
+@api_view(['GET','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def user_posts(request):
+    user = request.user
+    posts = Post.objects.filter(user_id=user.id).order_by('-created_at')
+    serializer = PostSerializers(posts,many=True)
+    return Response({'data':serializer.data},status=status.HTTP_200_OK)
+
+
+
 
 
 
