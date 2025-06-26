@@ -7,6 +7,7 @@ import Sign_up from "../pages/sign_up";
 import Home from "../pages/home";
 import UserHome from "../pages/userhome";
 import Profile from "../pages/profile";
+import AccountProfile from "../pages/accountprofile";
 
 const Routes = () => {
   const { token } = useAuth();
@@ -36,6 +37,10 @@ const Routes = () => {
         {
           path: "/profile",
           element: <Profile/>
+        },
+        {
+          path : "/accountprofile/:username",
+           element:  <AccountProfile />
         },
         {
           path: "/logout",
