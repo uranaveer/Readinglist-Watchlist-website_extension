@@ -13,6 +13,7 @@ class UserData(AbstractBaseUser,PermissionsMixin):
     is_emailverified = models.BooleanField(default=False)
     email_otp = models.CharField(max_length=250,blank=True,null=True)
     otp_cooldown = models.DateTimeField(blank=True,null=True)
+    bio = models.TextField(default="")
     password = models.CharField(max_length=250,blank=True,null=True)
 
     is_active = models.BooleanField(default=True)
