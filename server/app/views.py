@@ -127,9 +127,11 @@ def validate_otp(request):
 def change_user_data(request):
     user = request.user
     email = request.data.get('email')
+    old_password = request.data.get('old_password')
     password = request.data.get('password')
     username = request.data.get('username')
-    avatar_id = request.data.get('avatar_id')
+    avatar_id = int(request.data.get('avatar_id'))
+    bio = request.data.get('bio')
 
     if email and email != user.email:
         if UserData.objects.filter(email=email).exclude(id=user.id).exists():
@@ -141,11 +143,17 @@ def change_user_data(request):
         if UserData.objects.filter(username=username).exclude(id=user.id).exists():
             return Response({"message": "username already in use"}, status=status.HTTP_400_BAD_REQUEST)
         user.username = username
-    
-    if  password:
-        user.set_password(password)
+    if password:
+        authenticated_user = authenticate(emai = user.email , password = old_password)
+        if authenticated_user is  not None:
+            user.set_password(password)
+        else:
+            return Response({"message":"Current passowrd incorrect"},status=status.HTTP_401_UNAUTHORIZED)
     if avatar_id:
         user.avatar_id = avatar_id
+
+    if bio:
+        user.bio =bio
     
     user.save()
     return Response({"message":"details changed successfully"},status=status.HTTP_201_CREATED)
@@ -184,7 +192,7 @@ def test_api(request):
 
 
 @api_view(['POST','OPTIONS'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def add_post(request):
     if request.method == 'OPTIONS':
         return Response(status=status.HTTP_200_OK)
@@ -205,7 +213,7 @@ def add_post(request):
 
 
 @api_view(['GET','OPTIONS'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_entries(request):
     if request.method == 'OPTIONS':
         return Response(status=status.HTTP_200_OK)
@@ -218,36 +226,19 @@ def get_entries(request):
     page_size = 10
     start_index = (page_number-1)*page_size
     end_index = start_index+page_size
-
-    prev_start = max((page_number-2)*page_size,0)
-    prev_end = prev_start+page_size
-
-    next_start = (page_number)*page_size
-    next_end = next_start+page_size
-
     queryset = Post.objects.order_by('-created_at')
-
     entries = queryset[start_index:end_index]
-    prev_entries = queryset[prev_start:prev_end]
-    next_entries = queryset[next_start:next_end]
 
 
     serializer = PostSerializers(entries,many=True)
-    prev_serializer = PostSerializers(prev_entries,many=True)
-    next_serializer = PostSerializers(next_entries,many=True)
 
-    if page_number ==1:
-        return Response({
-        "prev data":[],
-        "data":serializer.data,
-        "next data":next_serializer.data
-                     },
-                    status=status.HTTP_200_OK)
+    count = Post.objects.count()
+
+
 
     return Response({
-        "prev data":prev_serializer.data,
+        "total_posts":count,
         "data":serializer.data,
-        "next data":next_serializer.data
                      },
                     status=status.HTTP_200_OK)
 
@@ -260,7 +251,10 @@ def user_data(request):
     
     return Response({'username':user.username,
                      'avatar_id':user.avatar_id,
+                     'bio':user.bio,
                      },status=status.HTTP_200_OK)
+
+
 
 @api_view(['GET','OPTIONS'])
 @permission_classes([IsAuthenticated])
@@ -269,6 +263,26 @@ def user_posts(request):
     posts = Post.objects.filter(user_id=user.id).order_by('-created_at')
     serializer = PostSerializers(posts,many=True)
     return Response({'data':serializer.data},status=status.HTTP_200_OK)
+
+
+
+@api_view(['GET','OPTIONS'])
+@permission_classes([IsAuthenticated])
+def get_profile_data(request,username):
+    user = UserData.objects.get(username=username)
+    posts = Post.objects.filter(user_id=user.id).order_by('-created_at')
+    serializer = PostSerializers(posts,many=True)
+
+    return Response({
+        'username':user.username,
+        'bio':user.bio,
+        'avatar_id':user.avatar_id,
+        "data":serializer.data,
+    },
+    status=status.HTTP_200_OK
+    )
+
+
 
 
 

@@ -12,6 +12,8 @@ urlpatterns = [
     path('add-post/', views.add_post, name="add post"),
     path('get-data/', views.get_entries, name="get data"),
     path('get-user-posts/', views.user_posts, name="get user posts"),
-    path('user-data/',views.user_data, name='User data')
+    path('user-data/',views.user_data, name='User data'),
+    path('add-like/',views.user_data, name='add Like'),
+    path('profile/<str:username>/',views.get_profile_data,name='Get profile data'),
 ]
 
