@@ -6,6 +6,7 @@ axios.defaults.baseURL = 'http://localhost:8000';
 // Create an Axios instance for authenticated requests
 const authAxios = axios.create({
   baseURL: "http://localhost:8000", // change this to your backend's base URL
+  //baseURL: "https://api.uranaveer.xyz/",
 });
 
 // Interceptor for handling token refresh

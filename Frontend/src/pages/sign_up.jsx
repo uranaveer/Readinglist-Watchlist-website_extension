@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
+
 function Sign_up() {
   const [formData, setFormData] = useState({
     username: "",
