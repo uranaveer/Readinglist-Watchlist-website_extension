@@ -1,4 +1,4 @@
-let token ;
+
 
 function getArticleText() {
   const article = document.querySelector("article");
@@ -20,7 +20,7 @@ function handleArticlePage(token) {
     description: articleText
   };
 
-  fetch("https://e8a0-103-37-201-225.ngrok-free.app/api/add_post/", {
+  fetch("https://api.uranaveer.xyz/api/add_post/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",  
@@ -56,7 +56,7 @@ function handleYouTubePage(token) {
     description: description
   };
 
-  fetch("https://e8a0-103-37-201-225.ngrok-free.app/api/add_post/", {
+  fetch("https://api.uranaveer.xyz/api/add_post/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",  
@@ -77,7 +77,7 @@ function handleYouTubePage(token) {
 
 }
 
-function setupPageWatcher() {
+function setupPageWatcher(token) {
   let lastUrl = location.href;
 
   function handlePageChange() {
@@ -118,7 +118,7 @@ function setupPageWatcher() {
 
 
 chrome.storage.sync.get("authToken", (data) => {
-  token = data.authToken;
+  let token = data.authToken;
 
   if (!token) {
     console.warn("User not logged in ");
@@ -126,23 +126,6 @@ chrome.storage.sync.get("authToken", (data) => {
   }
   console.log("User is logged in. Token:", token);
 
-  fetch("https://e8a0-103-37-201-225.ngrok-free.app/", {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${token}`
-    }
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Not authenticated");
-      return res.json();
-    })
-    .then(user => {
-      console.log("User info:", user);
-      chrome.storage.sync.set({ userId: user.id, email: user.email });
-    })
-    .catch(err => {
-      console.warn("Token invalid or expired:", err);
-    });
 
 // Check incognito mode and run watcher only if off
 chrome.storage.sync.get("incognito", (data) => {
