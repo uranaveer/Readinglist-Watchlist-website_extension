@@ -1,11 +1,11 @@
 // src/utils/authAxios.js
 import axios from "axios";
 
-axios.defaults.baseURL = 'http://localhost:8000';
+axios.defaults.baseURL = 'https://api.uranaveer.xyz/';
 
 // Create an Axios instance for authenticated requests
 const authAxios = axios.create({
-  baseURL: "http://localhost:8000", // change this to your backend's base URL
+  baseURL: "https://api.uranaveer.xyz/", // change this to your backend's base URL
   //baseURL: "https://api.uranaveer.xyz/",
 });
 
