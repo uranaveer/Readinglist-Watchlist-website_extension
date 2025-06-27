@@ -1,27 +1,77 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import authAxios from "../provider/authAxios";
-import { ArrowLeft } from "lucide-react"; // optional back icon
+import { ArrowLeft } from "lucide-react";
+
+const formatTime = (timestamp) => {
+  const now = new Date();
+  const postDate = new Date(timestamp);
+  const diff = (now - postDate) / 1000;
+
+  if (diff < 60) return `${Math.floor(diff)}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 3 * 86400) return `${Math.floor(diff / 86400)}d ago`;
+
+  if (now.getFullYear() !== postDate.getFullYear()) {
+    return postDate.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  return postDate.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+};
 
 function AccountProfile() {
   const { username } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showTopBtn, setShowTopBtn] = useState(false);
+
+  const fetchProfile = async () => {
+    setLoading(true);
+    try {
+      const res = await authAxios.get(`/api/profile/${username}/`);
+      setProfile(res.data);
+      setLoading(false);
+      window.scrollTo({ top: 0, behavior: "smooth" }); // after refresh, scroll to top
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await authAxios.get(`/api/profile/${username}/`);
-        setProfile(res.data);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
+    fetchProfile();
+  }, [username]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 200) {
+        setShowTopBtn(true);
+      } else {
+        setShowTopBtn(false);
       }
     };
 
-    fetchProfile();
-  }, [username]);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleBackHome = () => {
+    navigate("/");
+    scrollToTop();
+  };
 
   if (loading) {
     return (
@@ -31,13 +81,22 @@ function AccountProfile() {
     );
   }
 
+  const getFaviconUrl = (link) => {
+    try {
+      const url = new URL(link);
+      return `https://www.google.com/s2/favicons?sz=32&domain=${url.hostname}`;
+    } catch {
+      return "avatars/avatar0.png";
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto py-10 px-5 flex gap-6">
+    <div className="max-w-7xl mx-auto py-10 px-5 flex gap-6 relative">
       {/* Profile Sidebar */}
       <aside className="w-64 p-4 bg-white shadow rounded-xl sticky top-4 h-fit">
         <button
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-black mb-4"
+          onClick={handleBackHome}
+          className="flex items-center gap-2 text-sm text-gray-600 hover:text-black mb-4 active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
@@ -57,8 +116,8 @@ function AccountProfile() {
       <div className="flex-1">
         <ul className="space-y-6">
           {profile.data.map((post) => {
-            const domain = new URL(post.link).hostname;
-            const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+            const faviconUrl = getFaviconUrl(post.link);
+            
             return (
               <li
                 key={post.id}
@@ -74,26 +133,66 @@ function AccountProfile() {
                     <span className="text-sm text-gray-500">@{profile.username}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span>{new Date(post.created_at).toLocaleString()}</span>
-                    <img
-                      src={favicon}
-                      alt="site icon"
-                      className="w-5 h-5"
-                      title={domain}
-                    />
+                    <span className="text-sm text-gray-400 group relative">
+                      <span className="group-hover:hidden">
+                        {formatTime(post.created_at)}
+                      </span>
+                      <span className="hidden group-hover:inline">
+                        {new Date(post.created_at).toLocaleString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                     </span>
+                    </span>
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-blue-600 hover:underline">
-                  <a href={post.link} target="_blank" rel="noopener noreferrer">
-                    {post.title}
-                  </a>
-                </h3>
+                <div className="flex items-center space-x-2 mb-1">
+                  {faviconUrl && (
+                    <img
+                      src={faviconUrl}
+                      alt="favicon"
+                      className="w-5 h-5 rounded"
+                      onError={(e) => { e.target.src = "/avatars/avatar0.png"; }}
+                    />
+                  )}
+                  <h3 className="text-xl font-semibold text-blue-600 hover:underline">
+                    <a
+                      href={post.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {post.title}
+                    </a>
+                  </h3>
+                </div>
                 <p className="text-gray-600 mt-2">{post.description}</p>
               </li>
             );
           })}
         </ul>
       </div>
+
+      {/* Floating Refresh Button */}
+      <button
+        onClick={fetchProfile}
+        className="fixed bottom-6 left-6 bg-white text-black py-2 px-4 rounded font-medium border border-black hover:bg-black hover:text-white transition shadow-md z-20 active:scale-95"
+      >
+        Refresh
+      </button>
+
+      {/* Back to Top Button */}
+      {showTopBtn && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-full shadow-md hover:bg-gray-800 transition-all text-sm z-20 active:scale-95"
+        >
+          ↑ Back To Top
+        </button>
+      )}
     </div>
   );
 }

@@ -27,34 +27,39 @@ function Sign_up() {
     }));
     setError("");
   };
+  const [saving, setSaving] = useState(false);
 
   const handleSignUp = async () => {
-    const { username, email, password, confirmPassword } = formData;
+  const { username, email, password, confirmPassword } = formData;
 
-    if (!username || !email || !password || !confirmPassword) {
-      setError("Please fill in all fields.");
-      return;
-    }
+  if (!username || !email || !password || !confirmPassword) {
+    setError("Please fill in all fields.");
+    return;
+  }
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+  if (password !== confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
 
-    setError("");
+  setError("");
+  setSaving(true);
 
-    try {
-      await axios.post("/api/sign_up/", {
-        username,
-        email,
-        password,
-      });
-      navigate("/login");
-    } catch (err) {
-      console.log(err);
-      setError("Signup failed. Try again later.");
-    }
-  };
+  try {
+    await axios.post("/api/sign-up/", {
+      username,
+      email,
+      password,
+    });
+    navigate("/login");
+  } catch (err) {
+    console.log(err);
+    setError("Signup failed. Try again later.");
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   return (
     <div className="bg-white min-h-screen flex items-center justify-center px-4 font-sans">
@@ -130,10 +135,40 @@ function Sign_up() {
 
           <button
             onClick={handleSignUp}
-            className="w-full bg-black text-white py-2 font-semibold rounded hover:bg-white hover:text-black border border-black transition"
+            disabled={saving}
+            className={`w-full bg-black text-white py-2 font-semibold rounded 
+                        border border-black transition active:scale-95
+                        ${saving ? "opacity-70 cursor-not-allowed" : "hover:bg-white hover:text-black"}`}
           >
-            Sign Up
+            {saving ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 018 8h-4l3 3 3-3h-4a8 8 0 01-8 8v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                  ></path>
+                </svg>
+                Signing up...
+              </span>
+            ) : (
+              "Sign Up"
+            )}
           </button>
+
 
           <p className="text-sm text-center text-gray-600">
             Already have an account?{" "}

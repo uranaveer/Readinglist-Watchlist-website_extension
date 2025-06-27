@@ -28,28 +28,29 @@ function Login() {
     });
     setErrorMsg("");
   };
-
+  const [saving, setSaving] = useState(false);
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  setSaving(true);
+  setErrorMsg("");
 
-    try {
-      const response = await axios.post(
-        '/api/login/',
-        credentials
-      );
+  try {
+    const response = await axios.post('/api/login/', credentials);
+    const { access, refresh, username, is_emailverified } = response.data;
 
-      const { access, refresh, username, is_emailverified } = response.data;
+    setToken(access, refresh);
+    localStorage.setItem("username", username);
+    localStorage.setItem("is_emailverified", is_emailverified);
 
-      setToken(access, refresh);
-      localStorage.setItem("username", username);
-      localStorage.setItem("is_emailverified", is_emailverified);
+    navigate("/", { replace: true });
+  } catch (error) {
+    console.error("Login failed", error);
+    setErrorMsg("Invalid login details. Please try again or sign up.");
+  } finally {
+    setSaving(false);
+  }
+};
 
-      navigate("/", { replace: true });
-    } catch (error) {
-      console.error("Login failed", error);
-      setErrorMsg("Invalid login details. Please try again or sign up.");
-    }
-  };
 
   return (
     <div className="bg-white min-h-screen flex items-center justify-center font-sans">
@@ -89,11 +90,40 @@ function Login() {
 
           <button
             type="submit"
-            id="login_button"
-            className="w-full bg-black text-white py-2 rounded font-semibold hover:bg-white hover:text-black border border-black transition"
+            disabled={saving}
+            className={`w-full bg-black text-white py-2 rounded font-semibold 
+                        border border-black transition active:scale-95
+                        ${saving ? "opacity-70 cursor-not-allowed" : "hover:bg-white hover:text-black"}`}
           >
-            Login
+            {saving ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 018 8h-4l3 3 3-3h-4a8 8 0 01-8 8v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                  ></path>
+                </svg>
+                Logging in...
+              </span>
+            ) : (
+              "Login"
+            )}
           </button>
+
         </form>
 
         <p className="text-center text-sm mt-6">
