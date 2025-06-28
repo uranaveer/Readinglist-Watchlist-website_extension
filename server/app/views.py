@@ -13,6 +13,7 @@ from .serializer import PostSerializers , UserSerializer
 from .utils import generate_alphanumeric_otp, send_otp_email
 from django.db.models import Case, When,IntegerField, Value
 from django.contrib.postgres.search import TrigramSimilarity
+from django.db import transaction
 
 
 # Create your views here.
@@ -38,27 +39,40 @@ def validate_username(request):
 def sign_up(request):
     if request.method == 'OPTIONS':
         return Response(status=status.HTTP_200_OK)
+
     email = request.data.get("email")
     username = request.data.get('username')
     password = request.data.get('password')
 
-    print(f"sign_up {request.data}")
-    if UserData.objects.filter(email=email).exists():
-        return Response({"message":"email already in use"},status=status.HTTP_400_BAD_REQUEST)
-    if UserData.objects.filter(username=username).exists():
-        return Response({"message":"username already in use"},status=status.HTTP_400_BAD_REQUEST)
-    
+    if not email or not username or not password:
+        return Response({"message": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
-        user = UserData(email=email,username=username)
-        
-    except IntegrityError:
-        return Response({"message": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
-    except:
-        return Response({"message":"Something went wrong"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-    user.set_password(password)
-    user.save()
-    return Response({"message":"User Created"},status=status.HTTP_201_CREATED)
+        with transaction.atomic():
+            existing_user = UserData.objects.filter(email=email).first()
+            if existing_user:
+                if existing_user.is_emailverified:
+                    return Response({"message": "Email already in use"}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    existing_user.delete()
+
+            if UserData.objects.filter(username=username).exists():
+                return Response({"message": "Username already in use"}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = UserData(email=email, username=username)
+            user.set_password(password)
+
+            user.email_otp = generate_alphanumeric_otp()
+            user.otp_cooldown =timezone.now() + timedelta(minutes=10)
+            try:
+                send_otp_email(user.email,user.email_otp)
+            except Exception as e:
+                return Response({"message": "something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            user.save()
+            return Response({"message": "User created"}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        print(f"Sign-up error: {e}")
+        return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     
 
@@ -99,12 +113,20 @@ def login(request):
 
 
 @api_view(['POST','OPTIONS'])
-@permission_classes([IsAuthenticated])
 def validate_otp(request):
     if request.method == 'OPTIONS':
         return Response(status=status.HTTP_200_OK)
     
-    user=request.user
+    email = request.data.get('email')
+    username = request.data.get('email')
+    print(request.data)
+    try:
+        user = UserData.objects.get(email=email)
+    except UserData.DoesNotExist:
+        try:
+            user = UserData.objects.get(username=username)
+        except UserData.DoesNotExist:
+            return Response({"message":"user not found"}, status=status.HTTP_400_BAD_REQUEST)
     cooldown_time = user.otp_cooldown
     otp = request.data.get('otp')
     
@@ -113,6 +135,7 @@ def validate_otp(request):
         user.save()
         return Response({"message":"otp expired"},status=status.HTTP_408_REQUEST_TIMEOUT)
     
+    print(user.email_otp)
     if otp == user.email_otp:
         user.is_emailverified = True
         user.email_otp=None
@@ -129,7 +152,6 @@ def validate_otp(request):
 def change_user_data(request):
     print(request.data)
     user = request.user
-    email = request.data.get('email')
     old_password = request.data.get('old_password')
     password = request.data.get('password')
     username = request.data.get('username')
@@ -159,20 +181,27 @@ def change_user_data(request):
 
 
 @api_view(['POST','OPTIONS'])
-@permission_classes([IsAuthenticated])
-def initiate_email_verification(request):
+# @permission_classes([IsAuthenticated])
+def send_otp(request):
     if request.method == 'OPTIONS':
         return Response(status=status.HTTP_200_OK)
-    email = request.data.get('email')
+    email = request.data.get('username')
+    username = request.data.get('username')
+    print(request.data)
 
     try:
         user = UserData.objects.get(email=email)
     except UserData.DoesNotExist:
-        return Response({"message":"No user found"},status=status.HTTP_400_BAD_REQUEST)
-    
+        try:
+            user = UserData.objects.get(username=username)
+        except UserData.DoesNotExist:
+            return Response({"message":"user not found"}, status=status.HTTP_400_BAD_REQUEST)
     user.email_otp = generate_alphanumeric_otp()
     user.otp_cooldown =timezone.now() + timedelta(minutes=10)
-    send_otp_email(user.email,user.email_otp)
+    try:
+        send_otp_email(user.email,user.email_otp)
+    except Exception as e:
+        return Response({"message": "something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     user.save()
     return Response({"message":"otp sent successfully"}, status=status.HTTP_200_OK)
 
