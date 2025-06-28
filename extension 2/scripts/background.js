@@ -11,6 +11,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "LOGOUT") {
+    chrome.storage.sync.remove(["authToken", "refreshToken", "userId"], () => {
+        console.warn("Tokens cleared from storage");
+    });
+  }
+});
+
 function refreshAccessToken() {
   chrome.storage.sync.get(["refreshToken"], ({ refreshToken }) => {
     if (!refreshToken) {

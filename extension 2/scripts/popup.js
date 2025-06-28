@@ -34,4 +34,14 @@ document.addEventListener("DOMContentLoaded", () => {
       showSection(false);
     }
   });
+
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (changes.authToken && changes.authToken.newValue === undefined) {
+      // User logged out: update UI
+      document.getElementById("login-section").classList.remove("hidden");
+      document.getElementById("main-ui").classList.add("hidden");
+      console.log("🧹 UI updated due to logout.");
+    }
+  });
+
 });
