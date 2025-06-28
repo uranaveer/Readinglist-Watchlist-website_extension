@@ -1,6 +1,6 @@
 // NotFoundPage.jsx
 import { useNavigate } from "react-router-dom";
-import FuzzyText from "./FuzzyText";
+import FuzzyText from "./Fuzzytext";
 
 function NotFoundPage() {
   const navigate = useNavigate();
