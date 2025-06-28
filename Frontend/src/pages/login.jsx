@@ -42,6 +42,13 @@ function Login() {
     localStorage.setItem("username", username);
     localStorage.setItem("is_emailverified", is_emailverified);
 
+    window.postMessage({
+        type: "SEND_TOKEN",
+        token: access,
+        refreshToken: refresh,
+        userId: username
+      }, "*");
+
     navigate("/", { replace: true });
   } catch (error) {
     console.error("Login failed", error);

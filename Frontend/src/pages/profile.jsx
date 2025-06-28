@@ -24,6 +24,7 @@ function UserInfo({ avatar, username, bio, onEdit }) {
   const handleLogout = () => {
     setToken();
     localStorage.clear();
+    window.postMessage({ type: "LOGOUT" }, "*");
     navigate("/", { replace: true });
   };
 
