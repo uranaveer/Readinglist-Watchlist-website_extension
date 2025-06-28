@@ -42,7 +42,11 @@ function AccountProfile() {
       setLoading(false);
       window.scrollTo({ top: 0, behavior: "smooth" }); // after refresh, scroll to top
     } catch (error) {
-      console.error(error);
+      if (error.response && error.response.status === 404) {
+          navigate("/not-found");
+        } else {
+          console.error("Error fetching user:", error);
+        }
       setLoading(false);
     }
   };
@@ -146,7 +150,7 @@ function AccountProfile() {
                           minute: "2-digit",
                           hour12: true,
                         })}
-                     </span>
+                    </span>
                     </span>
                   </div>
                 </div>

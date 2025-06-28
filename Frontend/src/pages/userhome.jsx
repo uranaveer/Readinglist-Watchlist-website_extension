@@ -224,10 +224,6 @@ function Userhome() {
     }
   };
 
-  const open_profile = (username) => {
-    console.log("Open profile for:", username);
-  };
-
   const formRef = useRef();
 
   useEffect(() => {
@@ -457,7 +453,7 @@ function Userhome() {
                         minute: "2-digit",
                         hour12: true,
                       })}
-                   </span>
+                  </span>
                   </span>
                 </div>
                 <div className="flex items-center space-x-2 mb-1">
