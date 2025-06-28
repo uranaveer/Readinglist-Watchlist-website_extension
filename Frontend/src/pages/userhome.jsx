@@ -224,10 +224,6 @@ function Userhome() {
     }
   };
 
-  const open_profile = (username) => {
-    console.log("Open profile for:", username);
-  };
-
   const formRef = useRef();
 
   useEffect(() => {

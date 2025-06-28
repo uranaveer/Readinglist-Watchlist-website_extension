@@ -85,69 +85,75 @@ function Post({ username }) {
     <div className="max-w-4xl mx-auto py-10 px-5 relative">
 
       {/* Posts */}
-      <ul className="space-y-6 mt-6 pb-20">
-        {posts.map((post) => {
-          let domain, favicon;
-          try {
-            domain = new URL(post.link).hostname;
-            favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-          } catch (error) {
-            console.error(`Invalid URL: ${post.link}`);
-            domain = null;
-            favicon = "default-favicon.png";
-          }
+      {posts.length === 0 && !loading ? (
+        <div className="text-center text-2xl font-bold text-gray-400 py-20">
+          No posts yet
+        </div>
+      ) : (
+        <ul className="space-y-6 mt-6 pb-20">
+          {posts.map((post) => {
+            let domain, favicon;
+            try {
+              domain = new URL(post.link).hostname;
+              favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+            } catch (error) {
+              console.error(`Invalid URL: ${post.link}`);
+              domain = null;
+              favicon = "default-favicon.png";
+            }
 
-          return (
-            <li
-              key={post.id}
-              className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition duration-300"
-            >
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={post.avatarPath}
-                    alt="avatar"
-                    className="w-6 h-6 rounded-full border border-gray-300"
-                  />
-                  <span className="text-sm text-gray-500">@{post.user.username}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <span className="text-sm text-gray-400 group relative">
-                    <span className="group-hover:hidden">
-                      {formatTime(post.created_at)}
+            return (
+              <li
+                key={post.id}
+                className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition duration-300"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={post.avatarPath}
+                      alt="avatar"
+                      className="w-6 h-6 rounded-full border border-gray-300"
+                    />
+                    <span className="text-sm text-gray-500">@{post.user.username}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <span className="text-sm text-gray-400 group relative">
+                      <span className="group-hover:hidden">
+                        {formatTime(post.created_at)}
+                      </span>
+                      <span className="hidden group-hover:inline">
+                        {new Date(post.created_at).toLocaleString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </span>
                     </span>
-                    <span className="hidden group-hover:inline">
-                      {new Date(post.created_at).toLocaleString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
-                   </span>
-                  </span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-2 mb-1">
-                {favicon && (
-                  <img src={favicon} alt="favicon" className="w-5 h-5 rounded" />
-                )}
-                <h3 className="text-xl font-semibold text-blue-600 hover:underline">
-                  <a
-                    href={post.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {post.title}
-                  </a>
-                </h3>
-              </div>
-              <p className="text-gray-600 mt-2">{post.description}</p>
-            </li>
-          );
-        })}
-      </ul>
+                <div className="flex items-center space-x-2 mb-1">
+                  {favicon && (
+                    <img src={favicon} alt="favicon" className="w-5 h-5 rounded" />
+                  )}
+                  <h3 className="text-xl font-semibold text-blue-600 hover:underline">
+                    <a
+                      href={post.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {post.title}
+                    </a>
+                  </h3>
+                </div>
+                <p className="text-gray-600 mt-2">{post.description}</p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
       {loading && (
         <div className="flex justify-center mt-6">
