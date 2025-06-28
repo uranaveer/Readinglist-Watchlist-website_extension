@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Reading time",
-  "version": "1.0",
-  "description": "Add the reading time to Chrome Extension documentation articles",
+  "name": "Feedora",
+  "version": "1.0.0",
+  "description": "Website where Users can share their Reading and Watch Lists with Extension Support",
 
   "permissions": ["scripting", "activeTab", "storage"],
   "action": {
@@ -14,11 +14,18 @@
     "*://*/*"
   ],
 
-  "icons": {
-    "16": "images/icon-16.png",
-    "32": "images/icon-16.png",
-    "48": "images/icon-16.png",
-    "128": "images/icon-128.png"
+  "web_accessible_resources": [
+    {
+      "resources": ["images/feedora.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+ "icons": {
+    "16": "images/feedora.png",
+    "32": "images/feedora.png",
+    "48": "images/feedora.png",
+    "128": "images/feedora.png"
   },
   "content_scripts": [
     {
@@ -36,7 +43,7 @@
     }
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "scripts/background.js"
   }
 
 }
