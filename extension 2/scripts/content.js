@@ -20,7 +20,7 @@ function handleArticlePage(token) {
     description: articleText
   };
 
-  fetch("https://api.uranaveer.xyz/api/add_post/", {
+  fetch("https://api.uranaveer.xyz/api/add-post/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",  
@@ -56,7 +56,7 @@ function handleYouTubePage(token) {
     description: description
   };
 
-  fetch("https://api.uranaveer.xyz/api/add_post/", {
+  fetch("https://api.uranaveer.xyz/api/add-post/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",  
