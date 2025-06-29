@@ -27,12 +27,14 @@ function Home() {
           Automatically track what you watch and read, summarize it with local AI, and build your knowledge footprint — effortlessly.
         </p>
         <p className="text-gray-500 italic mb-8">Your mind, captured. No effort required.</p>
-        <Link
-          to="/login"
+        <a
+          href="https://github.com/uranaveer/Readinglist-Watchlist-website_extension"
+          target="_blank"
+          rel="noopener noreferrer"
           className="bg-black text-white text-lg px-8 py-3 font-semibold rounded-full hover:bg-white hover:text-black border border-black transition shadow-md active:scale-95"
         >
-          🚀 Get Started
-        </Link>
+          🚀 Get Started on GitHub
+        </a>
       </main>
 
       {/* About Extension Section */}
@@ -52,6 +54,22 @@ function Home() {
           </p>
           <p className="text-gray-500 italic">Your data, your control — no third-party tracking.</p>
         </div>
+      </section>
+
+      {/* Find Source Section */}
+      <section className="px-4 py-12 bg-gray-50 text-center border-t border-gray-200">
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">🔗 Find the Source & Extension</h2>
+        <p className="text-lg text-gray-700 mb-4">
+          You can find the full source code and browser extension anytime on GitHub:
+        </p>
+        <a
+          href="https://github.com/uranaveer/Readinglist-Watchlist-website_extension"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block bg-black text-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-black border border-black transition active:scale-95"
+        >
+          Visit on GitHub
+        </a>
       </section>
 
       {/* Footer */}
