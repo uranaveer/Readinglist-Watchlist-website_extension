@@ -78,18 +78,20 @@ function handleYouTubePage(token) {
 }
 
 function setupPageWatcher(token) {
-  let lastUrl = location.href;
+  let lastUrl ="aaa";
 
   function handlePageChange() {
     const currentUrl = location.href;
     if (currentUrl !== lastUrl) {
       lastUrl = currentUrl;
-    }
 
-    if (currentUrl.includes("youtube.com/watch")) {
-      handleYouTubePage(token);
-    } else {
-      handleArticlePage(token);
+      if (currentUrl.includes("youtube.com/watch")) {
+        setTimeout(() => {
+          handleYouTubePage(token);
+        }, "5000");
+      } else {
+        handleArticlePage(token);
+      }
     }
   }
 
