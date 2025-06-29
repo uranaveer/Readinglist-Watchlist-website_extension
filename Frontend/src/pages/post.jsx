@@ -45,14 +45,8 @@ function Post({ username }) {
     try {
       const res = await authAxios.get(`/api/profile/${username}/`);
       const data = res.data.data;
-      const processedPosts = data.map((post) => ({
-        ...post,
-        avatarPath: avatarPaths[(post.user.avatar_id - 1) % avatarPaths.length],
-      }));
-      setPosts(processedPosts);
-
-      // after refreshing, scroll to top
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setPosts(data);
+      window.scrollTo({ top: 0, behavior: "smooth" }); // after refresh, scroll to top
     } catch (error) {
       console.error("Failed to fetch posts:", error);
     } finally {
@@ -66,13 +60,8 @@ function Post({ username }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 200) {
-        setShowTopBtn(true);
-      } else {
-        setShowTopBtn(false);
-      }
+      setShowTopBtn(window.scrollY > 200);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -81,77 +70,97 @@ function Post({ username }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const getFaviconUrl = (link) => {
+    try {
+      const url = new URL(link);
+      return `https://www.google.com/s2/favicons?sz=32&domain=${url.hostname}`;
+    } catch {
+      return "/avatars/avatar0.png";
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-10 px-5 relative">
-
-      {/* Posts */}
       {posts.length === 0 && !loading ? (
         <div className="text-center text-2xl font-bold text-gray-400 py-20">
           No posts yet
         </div>
       ) : (
         <ul className="space-y-6 mt-6 pb-20">
-          {posts.map((post) => {
-            let domain, favicon;
-            try {
-              domain = new URL(post.link).hostname;
-              favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-            } catch (error) {
-              console.error(`Invalid URL: ${post.link}`);
-              domain = null;
-              favicon = "default-favicon.png";
-            }
+          {(() => {
+            const groups = {};
+            posts.forEach((post) => {
+              const dateStr = new Date(post.created_at).toLocaleDateString(undefined, {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+              if (!groups[dateStr]) groups[dateStr] = [];
+              groups[dateStr].push(post);
+            });
 
-            return (
-              <li
-                key={post.id}
-                className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition duration-300"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={post.avatarPath}
-                      alt="avatar"
-                      className="w-6 h-6 rounded-full border border-gray-300"
-                    />
-                    <span className="text-sm text-gray-500">@{post.user.username}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span className="text-sm text-gray-400 group relative">
-                      <span className="group-hover:hidden">
-                        {formatTime(post.created_at)}
+            const items = [];
+            Object.entries(groups).forEach(([date, groupPosts]) => {
+              items.push(
+                <div
+                  key={date}
+                  className="sticky top-4 bg-white text-lg font-semibold text-gray-700 mt-8 mb-2 border-b border-gray-200 pb-1 z-10"
+                >
+                  {date}
+                </div>
+              );
+              groupPosts.forEach((post) => {
+                const favicon = getFaviconUrl(post.link);
+                return items.push(
+                  <li
+                    key={post.id}
+                    className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition duration-300"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={`/avatars/avatar${post.user.avatar_id || 0}.png`}
+                          alt="avatar"
+                          className="w-6 h-6 rounded-full border border-gray-300"
+                        />
+                        <span className="text-sm text-gray-500">@{post.user.username}</span>
+                      </div>
+                      <span className="text-sm text-gray-400 group relative">
+                        <span className="group-hover:hidden">
+                          {formatTime(post.created_at)}
+                        </span>
+                        <span className="hidden group-hover:inline">
+                          {new Date(post.created_at).toLocaleString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                        </span>
                       </span>
-                      <span className="hidden group-hover:inline">
-                        {new Date(post.created_at).toLocaleString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}
-                      </span>
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 mb-1">
-                  {favicon && (
-                    <img src={favicon} alt="favicon" className="w-5 h-5 rounded" />
-                  )}
-                  <h3 className="text-xl font-semibold text-blue-600 hover:underline">
-                    <a
-                      href={post.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {post.title}
-                    </a>
-                  </h3>
-                </div>
-                <p className="text-gray-600 mt-2">{post.description}</p>
-              </li>
-            );
-          })}
+                    </div>
+                    <div className="flex items-center space-x-2 mb-1">
+                      <img src={favicon} alt="favicon" className="w-5 h-5 rounded" />
+                      <h3 className="text-xl font-semibold text-blue-600 hover:underline">
+                        <a
+                          href={post.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {post.title}
+                        </a>
+                      </h3>
+                    </div>
+                    <p className="text-gray-600 mt-2">{post.description}</p>
+                  </li>
+                );
+              });
+            });
+            return items;
+          })()}
         </ul>
       )}
 

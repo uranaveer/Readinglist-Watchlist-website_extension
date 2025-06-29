@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import authAxios from "../provider/authAxios";
-import { Link } from "react-router-dom";
 import { Search, Loader } from "lucide-react";
 
 const formatTime = (timestamp) => {
@@ -27,9 +26,6 @@ const formatTime = (timestamp) => {
     day: "numeric",
   });
 };
-
-
-
 
 function SearchBar() {
   const [query, setQuery] = useState("");
@@ -68,7 +64,6 @@ function SearchBar() {
     return () => clearTimeout(timeout);
   }, [query]);
 
-  // click outside to close results
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -86,29 +81,20 @@ function SearchBar() {
   };
 
   return (
-    <div ref={searchRef} className="relative w-48">
-      <div
-  className="flex items-center border border-gray-300 rounded-full px-4 py-2 
-             bg-white shadow-md focus-within:ring-2 focus-within:ring-black 
-             transition-all duration-200"
->
-  <Search size={18} className="text-black" />
-
-  <input
-    type="text"
-    placeholder="Search users..."
-    className="ml-2 w-full outline-none bg-transparent text-base text-gray-700 placeholder-gray-400"
-    value={query}
-    onChange={(e) => setQuery(e.target.value)}
-  />
-  {loading && (
-    <Loader size={18} className="ml-2 animate-spin black" />
-  )}
-</div>
-
-
+    <div ref={searchRef} className="relative w-full max-w-4xl mx-auto">
+      <div className="flex items-center border border-gray-300 rounded-full px-4 py-2 bg-white shadow-md focus-within:ring-2 focus-within:ring-black transition-all duration-200 w-full">
+        <Search size={18} className="text-black" />
+        <input
+          type="text"
+          placeholder="Search users..."
+          className="ml-2 w-full outline-none bg-transparent text-base text-gray-700 placeholder-gray-400"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        {loading && <Loader size={18} className="ml-2 animate-spin text-black" />}
+      </div>
       {results.length > 0 && (
-        <ul className="absolute top-10 left-0 w-full bg-white border border-gray-200 rounded-md shadow-lg z-40 max-h-60 overflow-y-auto">
+        <ul className="absolute top-12 left-0 w-full bg-white border border-gray-200 rounded-md shadow-lg z-40 max-h-60 overflow-y-auto">
           {results.map((user) => (
             <li
               key={user.username}
@@ -130,8 +116,6 @@ function SearchBar() {
 }
 
 
-
-
 function Userhome() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -139,13 +123,13 @@ function Userhome() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const pageRef = useRef(1);
-  const [form, setForm] = useState({ title: "", description: "", link: "" });
-  const [submitting, setSubmitting] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
   const loaderRef = useRef();
   const navigate = useNavigate();
   const [username, setUsername] = useState("user");
   const [avatarId, setAvatarId] = useState(1);
+
+  const [currentDate, setCurrentDate] = useState("Latest Posts");
+  const dateRefs = useRef({});
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -158,10 +142,8 @@ function Userhome() {
         console.error("Failed to fetch user data:", error);
       }
     };
-
     fetchUserData();
   }, []);
-
 
   useEffect(() => {
     fetchPosts(1);
@@ -195,73 +177,20 @@ function Userhome() {
       });
   };
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    authAxios
-      .post("/api/add-post/", form)
-      .then(() => {
-        setForm({ title: "", description: "", link: "" });
-        setFormOpen(false);
-        setHasMore(true);
-        setPage(1);
-        pageRef.current = 1;
-        fetchPosts(1);
-      })
-      .catch((err) => console.error("Failed to submit post:", err))
-      .finally(() => setSubmitting(false));
-  };
-
   const getFaviconUrl = (link) => {
     try {
       const url = new URL(link);
       return `https://www.google.com/s2/favicons?sz=32&domain=${url.hostname}`;
     } catch {
-      return "avatars/avatar0.png";
+      return "/avatars/avatar0.png";
     }
   };
-
-  const formRef = useRef();
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (formOpen && formRef.current && !formRef.current.contains(event.target)) {
-        setFormOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [formOpen]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
-          fetchPosts(pageRef.current);
-        }
-      },
-      { threshold: 1 }
-    );
-
-    const current = loaderRef.current;
-    if (current) observer.observe(current);
-
-    return () => {
-      if (current) observer.unobserve(current);
-    };
-  }, [hasMore, loadingMore]);
 
   const [showTopBtn, setShowTopBtn] = useState(false);
   useEffect(() => {
     const handleScroll = () => {
       setShowTopBtn(window.scrollY > 300);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -273,26 +202,57 @@ function Userhome() {
       setPage(1);
       pageRef.current = 1;
       fetchPosts(1);
-    }, 400); 
+    }, 400);
   };
 
   const [scrolled, setScrolled] = useState(false);
-
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 100);
+
+      // handle active date
+      const dateEls = Object.values(dateRefs.current);
+      let closestDate = "";
+      let closestDistance = Infinity;
+
+      dateEls.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top >= 80 && rect.top <= window.innerHeight) {
+          if (rect.top < closestDistance) {
+            closestDistance = rect.top;
+            closestDate = el.innerText;
+          }
+        }
+      });
+
+      if (closestDate) {
+        setCurrentDate(closestDate);
+      }
     };
 
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [posts]);
 
-
-
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          fetchPosts(pageRef.current);
+        }
+      },
+      { threshold: 1 }
+    );
+    const current = loaderRef.current;
+    if (current) observer.observe(current);
+    return () => {
+      if (current) observer.unobserve(current);
+    };
+  }, [hasMore, loadingMore]);
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-5">
-      {/* Large Title - Centered */}
+      {/* Large Title */}
       <div
         className={`transition-all duration-500 ease-out ${
           scrolled ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
@@ -304,12 +264,10 @@ function Userhome() {
             Feedora
           </h1>
         </div>
-        <p className="text-gray-500 text-sm">
-          Curate & share what you consume.
-        </p>
+        <p className="text-gray-500 text-sm">Curate & share what you consume.</p>
       </div>
 
-      {/* Mini Title - Fixed Top Left */}
+      {/* Mini Title */}
       <div
         className={`fixed top-4 left-5 z-30 transition-all duration-500 ease-out ${
           scrolled ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
@@ -318,96 +276,20 @@ function Userhome() {
         <div className="flex items-center space-x-2">
           <img src="/Feedora.png" alt="logo" className="w-8 h-8" />
           <div>
-            <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-              Feedora
-            </h1>
+            <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Feedora</h1>
             <p className="text-xs text-gray-500">Curate & share what you consume</p>
           </div>
         </div>
       </div>
 
-
-
-
-      {/* Sticky Add Post Section */}
-      <div ref={formRef} className="sticky top-0 z-10 bg-white shadow-md rounded-xl p-4 mb-4 border border-gray-200">
-        {formOpen ? (
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="flex justify-between items-center mb-1">
-              <div className="flex items-center space-x-2">
-                <img
-                  src={`/avatars/avatar${avatarId}.png`}
-                  alt="avatar"
-                  className="w-5 h-5 rounded-full object-cover"
-                />
-                <span className="text-sm text-gray-500">@{username}</span>
-              </div>
-
-              <span className="text-sm text-gray-400">now</span>
-            </div>
-            <input
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              placeholder="Title"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              required
-            />
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Tell others what did you consumed?"
-              rows={3}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              required
-            />
-            <input
-              name="link"
-              value={form.link}
-              onChange={handleChange}
-              placeholder="https://example.com"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              required
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                type="button"
-                className="text-sm text-gray-500 hover:underline
-                active:scale-95"
-                onClick={() => setFormOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition text-sm active:scale-95"
-                disabled={submitting}
-              >
-                {submitting ? "Adding..." : "Add"}
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div
-            className="cursor-pointer text-gray-500 text-sm"
-            onClick={() => setFormOpen(true)}
-          >
-            <div className="flex justify-between items-center mb-1">
-              <div className="flex items-center space-x-2">
-                <img
-                  src={`/avatars/avatar${avatarId}.png`}
-                  alt="avatar"
-                  className="w-5 h-5 rounded-full object-cover"
-                />
-                <span className="text-sm text-gray-500">@{username}</span>
-              </div>
-
-              <span className="text-sm text-gray-400">Add Log</span>
-            </div>
-            <p className="text-gray-400">Click to share something...</p>
+      {/* Sticky Search Bar + Dynamic Date */}
+      <div className="sticky top-0 z-40 bg-white  py-4 mb-4">
+        <div className="max-w-4xl mx-auto px-5">
+          <SearchBar />
+          <div className="text-lg font-semibold text-gray-700 mt-4  pb-1">
+            {currentDate}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Posts */}
@@ -416,108 +298,125 @@ function Userhome() {
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-black border-solid"></div>
         </div>
       ) : (
-        <div>
         <ul className="space-y-6">
-          {posts.map((post) => {
-            const faviconUrl = getFaviconUrl(post.link);
-            return (
-              <li
-                key={post.id}
-                className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition duration-300"
-              >
-                <div className="flex justify-between items-center mb-2">
+          {(() => {
+            const groups = {};
+            posts.forEach((post) => {
+              const dateStr = new Date(post.created_at).toLocaleDateString(undefined, {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+              if (!groups[dateStr]) groups[dateStr] = [];
+              groups[dateStr].push(post);
+            });
 
-                  <Link to={`/profile/${post.user.username}`}>
-                  <div className="flex items-center gap-2 hover:underline cursor-pointer">
-                    <img
-                      src={`/avatars/avatar${post.user.avatar_id}.png`}
-                      alt="avatar"
-                      className="w-6 h-6 rounded-full border border-gray-300"
-                    />
-                    <span className="text-sm text-gray-500">@{post.user.username}</span>
-                  </div>
-                </Link>
-
-
-
-                  <span className="text-sm text-gray-400 group relative">
-                    <span className="group-hover:hidden">
-                      {formatTime(post.created_at)}
-                    </span>
-                    <span className="hidden group-hover:inline">
-                      {new Date(post.created_at).toLocaleString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
-                   </span>
-                  </span>
+            const items = [];
+            Object.entries(groups).forEach(([date, groupPosts]) => {
+              items.push(
+                <div
+                  key={date}
+                  ref={(el) => (dateRefs.current[date] = el)}
+                  className="text-lg font-semibold text-gray-700 mt-8 mb-2 border-b border-gray-200 pb-1"
+                >
+                  {date}
                 </div>
-                <div className="flex items-center space-x-2 mb-1">
-                  {faviconUrl && (
-                    <img
-                      src={faviconUrl}
-                      alt="favicon"
-                      className="w-5 h-5 rounded"
-                      onError={(e) => { e.target.src = "/avatars/avatar0.png"; }}
-                    />
-                  )}
-                  <h3 className="text-xl font-semibold text-blue-600 hover:underline">
-                    <a
-                      href={post.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {post.title}
-                    </a>
-                  </h3>
-                </div>
-                <p className="text-gray-600 mt-2">{post.description}</p>
-              </li>
-            );
-          })}
+              );
+              groupPosts.forEach((post) => {
+                const faviconUrl = getFaviconUrl(post.link);
+                items.push(
+                  <li
+                    key={post.id}
+                    className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition duration-300"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <Link to={`/profile/${post.user.username}`}>
+                        <div className="flex items-center gap-2 hover:underline cursor-pointer">
+                          <img
+                            src={`/avatars/avatar${post.user.avatar_id}.png`}
+                            alt="avatar"
+                            className="w-6 h-6 rounded-full border border-gray-300"
+                          />
+                          <span className="text-sm text-gray-500">@{post.user.username}</span>
+                        </div>
+                      </Link>
+                      <span className="text-sm text-gray-400 group relative">
+                        <span className="group-hover:hidden">
+                          {formatTime(post.created_at)}
+                        </span>
+                        <span className="hidden group-hover:inline">
+                          {new Date(post.created_at).toLocaleString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2 mb-1">
+                      {faviconUrl && (
+                        <img
+                          src={faviconUrl}
+                          alt="favicon"
+                          className="w-5 h-5 rounded"
+                          onError={(e) => (e.target.src = "/avatars/avatar0.png")}
+                        />
+                      )}
+                      <h3 className="text-xl font-semibold text-blue-600 hover:underline">
+                        <a href={post.link} target="_blank" rel="noopener noreferrer">
+                          {post.title}
+                        </a>
+                      </h3>
+                    </div>
+                    <p className="text-gray-600 mt-2">{post.description}</p>
+                  </li>
+                );
+              });
+            });
+            return items;
+          })()}
         </ul>
-        </div>
       )}
 
-      {/* Infinite Scroll Loader */}
+      {/* Infinite loader */}
       {hasMore && (
         <div ref={loaderRef} className="flex justify-center py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-black border-solid"></div>
         </div>
       )}
 
-      {/* Back to Top Button */}
+      {/* Back to top */}
       {showTopBtn && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-full shadow-md hover:bg-gray-800 transition-all text-sm z-50 active:scale-95"
+          className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded-full shadow-md hover:bg-gray-800 text-sm z-50 active:scale-95"
         >
           ↑ Back To Top
         </button>
       )}
 
+      {/* user menu */}
       <div className="fixed top-4 right-5 z-30 flex items-center gap-4">
-        <SearchBar />
         <div
-          onClick={() => navigate('/profile')}
-          className="flex items-center gap-2 cursor-pointer active:scale-95"
+          onClick={() => navigate("/profile")}
+          className="flex items-center gap-3 cursor-pointer active:scale-95 p-2 rounded-xl hover:bg-gray-100 transition"
         >
           <img
             src={`/avatars/avatar${avatarId}.png`}
             alt="avatar"
-            className="w-8 h-8 rounded-full border border-gray-300 object-cover"
+            className="w-12 h-12 rounded-full border border-gray-300 object-cover"
           />
-          <span className="text-sm font-medium text-gray-700">@{username}</span>
+          <span className="text-base font-semibold text-gray-700">@{username}</span>
         </div>
       </div>
-
     </div>
   );
 }
-export default Userhome;
 
+
+export default Userhome;
 

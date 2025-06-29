@@ -40,14 +40,13 @@ function AccountProfile() {
       const res = await authAxios.get(`/api/profile/${username}/`);
       setProfile(res.data);
       setLoading(false);
-      window.scrollTo({ top: 0, behavior: "smooth" }); // after refresh, scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
-       if (error.response && error.response.status === 404) {
-          navigate("/not-found");
-        }
-        else {
-          console.error("Error fetching user:", error);
-        }
+      if (error.response && error.response.status === 404) {
+        navigate("/not-found");
+      } else {
+        console.error("Error fetching user:", error);
+      }
       setLoading(false);
     }
   };
@@ -58,13 +57,8 @@ function AccountProfile() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 200) {
-        setShowTopBtn(true);
-      } else {
-        setShowTopBtn(false);
-      }
+      setShowTopBtn(window.scrollY > 200);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -78,6 +72,15 @@ function AccountProfile() {
     scrollToTop();
   };
 
+  const getFaviconUrl = (link) => {
+    try {
+      const url = new URL(link);
+      return `https://www.google.com/s2/favicons?sz=32&domain=${url.hostname}`;
+    } catch {
+      return "/avatars/avatar0.png";
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center mt-6">
@@ -85,15 +88,6 @@ function AccountProfile() {
       </div>
     );
   }
-
-  const getFaviconUrl = (link) => {
-    try {
-      const url = new URL(link);
-      return `https://www.google.com/s2/favicons?sz=32&domain=${url.hostname}`;
-    } catch {
-      return "avatars/avatar0.png";
-    }
-  };
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-5 flex gap-6 relative">
@@ -119,66 +113,97 @@ function AccountProfile() {
 
       {/* Posts */}
       <div className="flex-1">
-        <ul className="space-y-6">
-          {profile.data.map((post) => {
-            const faviconUrl = getFaviconUrl(post.link);
-            
-            return (
-              <li
-                key={post.id}
-                className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition duration-300"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={`/avatars/avatar${profile.avatar_id}.png`}
-                      alt="avatar"
-                      className="w-6 h-6 rounded-full border border-gray-300"
-                    />
-                    <span className="text-sm text-gray-500">@{profile.username}</span>
+        {profile.data.length === 0 ? (
+          <div className="text-center text-2xl font-semibold text-gray-500 py-10">
+            No posts yet.
+          </div>
+        ) : (
+          <ul className="space-y-6">
+            {(() => {
+              const groups = {};
+              profile.data.forEach((post) => {
+                const dateStr = new Date(post.created_at).toLocaleDateString(undefined, {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                });
+                if (!groups[dateStr]) groups[dateStr] = [];
+                groups[dateStr].push(post);
+              });
+
+              const items = [];
+              Object.entries(groups).forEach(([date, groupPosts]) => {
+                items.push(
+                  <div
+                    key={date}
+                    className="sticky top-4 bg-white text-lg font-semibold text-gray-700 mt-8 mb-2 border-b border-gray-200 pb-1 z-10"
+                  >
+                    {date}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span className="text-sm text-gray-400 group relative">
-                      <span className="group-hover:hidden">
-                        {formatTime(post.created_at)}
-                      </span>
-                      <span className="hidden group-hover:inline">
-                        {new Date(post.created_at).toLocaleString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}
-                     </span>
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 mb-1">
-                  {faviconUrl && (
-                    <img
-                      src={faviconUrl}
-                      alt="favicon"
-                      className="w-5 h-5 rounded"
-                      onError={(e) => { e.target.src = "/avatars/avatar0.png"; }}
-                    />
-                  )}
-                  <h3 className="text-xl font-semibold text-blue-600 hover:underline">
-                    <a
-                      href={post.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                );
+                groupPosts.forEach((post) => {
+                  const faviconUrl = getFaviconUrl(post.link);
+                  items.push(
+                    <li
+                      key={post.id}
+                      className="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition duration-300"
                     >
-                      {post.title}
-                    </a>
-                  </h3>
-                </div>
-                <p className="text-gray-600 mt-2">{post.description}</p>
-              </li>
-            );
-          })}
-        </ul>
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={`/avatars/avatar${profile.avatar_id}.png`}
+                            alt="avatar"
+                            className="w-6 h-6 rounded-full border border-gray-300"
+                          />
+                          <span className="text-sm text-gray-500">@{profile.username}</span>
+                        </div>
+                        <span className="text-sm text-gray-400 group relative">
+                          <span className="group-hover:hidden">
+                            {formatTime(post.created_at)}
+                          </span>
+                          <span className="hidden group-hover:inline">
+                            {new Date(post.created_at).toLocaleString(undefined, {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2 mb-1">
+                        {faviconUrl && (
+                          <img
+                            src={faviconUrl}
+                            alt="favicon"
+                            className="w-5 h-5 rounded"
+                            onError={(e) => {
+                              e.target.src = "/avatars/avatar0.png";
+                            }}
+                          />
+                        )}
+                        <h3 className="text-xl font-semibold text-blue-600 hover:underline">
+                          <a
+                            href={post.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {post.title}
+                          </a>
+                        </h3>
+                      </div>
+                      <p className="text-gray-600 mt-2">{post.description}</p>
+                    </li>
+                  );
+                });
+              });
+              return items;
+            })()}
+          </ul>
+        )}
       </div>
 
       {/* Floating Refresh Button */}
