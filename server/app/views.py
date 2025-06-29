@@ -43,7 +43,7 @@ def sign_up(request):
     email = request.data.get("email")
     username = request.data.get('username')
     password = request.data.get('password')
-
+    print(request.data)
     if not email or not username or not password:
         return Response({"message": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
 

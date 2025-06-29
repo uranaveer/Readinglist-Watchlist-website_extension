@@ -1,5 +1,7 @@
-# Initialize summarization pipeline (T5-small on CPU)
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from torch import compile
 
-from transformers import pipeline
-
-summarizer = pipeline("summarization", model="t5-small", tokenizer="t5-small", device=-1)
+# Load tokenizer and model (will download if not cached)
+tokenizer = AutoTokenizer.from_pretrained("microsoft/phi-2")
+model = AutoModelForCausalLM.from_pretrained("microsoft/phi-2")
+model = compile(model)
