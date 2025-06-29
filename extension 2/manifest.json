@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Feedora",
+  "version": "1.0.0",
+  "description": "Website where Users can share their Reading and Watch Lists with Extension Support",
+
+  "permissions": ["scripting", "activeTab", "storage"],
+  "action": {
+    "default_popup": "scripts/popup.html"
+  },
+
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://*/*"
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["images/feedora.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+ "icons": {
+    "16": "images/feedora.png",
+    "32": "images/feedora.png",
+    "48": "images/feedora.png",
+    "128": "images/feedora.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://readinglist-watchlist-website-exten.vercel.app/*"],
+      "js": ["scripts/inject.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://*.youtube.com/watch*",
+        "*://*/*"
+      ],
+      "js": ["scripts/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "scripts/background.js"
+  }
+
+}

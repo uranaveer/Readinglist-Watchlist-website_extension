@@ -148,3 +148,4 @@ python manage.py runserver
 | POST   | /add-like/               | Add like to a post     |
 | GET    | /profile/<username>/     | Get public profile data |
 | GET    | /search/                 | Search for users       |
+
