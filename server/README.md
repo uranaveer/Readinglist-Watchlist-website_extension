@@ -149,6 +149,3 @@ python manage.py runserver
 | GET    | /profile/<username>/     | Get public profile data |
 | GET    | /search/                 | Search for users       |
 
-
-
-

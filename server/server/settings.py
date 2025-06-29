@@ -132,7 +132,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 
-CELERY_BROKER_URL = env('CELERY_BROKER_URL')
+CELERY_BROKER_URL ='redis://localhost:6379/0'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
