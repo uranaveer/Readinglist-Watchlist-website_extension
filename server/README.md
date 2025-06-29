@@ -103,23 +103,34 @@ print(get_random_secret_key())
 
 `APP_PASSWORD=gmail_app_passwords`
 
-### Step-4 : Applying Migrations
+### Step-4 : Downloading the models
+* Download Prebuilt .whl for llama-cpp-python From ->[Link](https://github.com/abetlen/llama-cpp-python/releases/download/v0.3.2/llama_cpp_python-0.3.2-cp310-cp310-win_amd64.whl)
+* Place .whl server/app folder
+```bash
+#run
+cd app
+pip install llama_cpp_python-0.3.2-cp310-cp310-win_amd64.whl
+```
+* Download quantised Gemma-2-2b-it from -> [Link](https://huggingface.co/bartowski/gemma-2-2b-it-GGUF/blob/main/gemma-2-2b-it-Q6_K.gguf)
+* Place it in server/app folder
+
+### Step-5 : Applying Migrations
 ```bash
 #Applying models(tables) into Database
 cd Readinglist-Watchlist-website_extension/server
 python manage.py makemigrations
 python manage.py migrate
 ```
-### Step-5 : Start Redis server
+### Step-6 : Start Redis server
 ```bash
 #Start the redis server (if you are using windows, you need to start it from wsl)
 redis-server
 ```
-### Step-6 :  Start Celery Worker (for Summarization Tasks)
+### Step-7 :  Start Celery Worker (for Summarization Tasks)
 ```bash
 celery -A server worker --loglevel=info --pool=solo
 ```
-### Step-7 : Run the Development Server
+### Step-8 : Run the Development Server
 ```bash
 uvicorn server.asgi:application --host 127.0.0.1 --port 8000 --reload
 ```
