@@ -230,7 +230,8 @@ def add_post(request):
     title = request.data.get('title')
     link = request.data.get('link')
     description = request.data.get('description')
-
+    if Post.objects.filter(link=link, user_id =user.id).exists():
+        return Response({"message":"link already exits for the user"},status=status.HTTP_400_BAD_REQUEST)
     post = Post(title=title,link=link,description=description)
     post.user=user
 
@@ -254,7 +255,7 @@ def get_entries(request):
     page_size = 10
     start_index = (page_number-1)*page_size
     end_index = start_index+page_size
-    queryset = Post.objects.order_by('-created_at')
+    queryset = Post.objects.filter(approved = True).order_by('-created_at')
     entries = queryset[start_index:end_index]
 
 
@@ -288,7 +289,7 @@ def user_data(request):
 @permission_classes([IsAuthenticated])
 def user_posts(request):
     user = request.user
-    posts = Post.objects.filter(user_id=user.id).order_by('-created_at')
+    posts = Post.objects.filter(approved =True,user_id=user.id).order_by('-created_at')
     serializer = PostSerializers(posts,many=True)
     return Response({'data':serializer.data},status=status.HTTP_200_OK)
 
@@ -299,7 +300,7 @@ def user_posts(request):
 def get_profile_data(request,username):
     if UserData.objects.filter(username=username).exists():
         user = UserData.objects.get(username=username)
-        posts = Post.objects.filter(user_id=user.id).order_by('-created_at')
+        posts = Post.objects.filter(approved = True ,user_id=user.id).order_by('-created_at')
         serializer = PostSerializers(posts,many=True)
 
         return Response({

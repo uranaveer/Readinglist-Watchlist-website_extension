@@ -4,11 +4,29 @@ from email.mime.multipart import MIMEMultipart
 import environ
 import secrets
 import string
+import re
 
 
 env = environ.Env()
 environ.Env.read_env()
 
+def clean_text(text):
+    text = re.sub(r'<[^>]+>', '', text)
+    text = re.sub(r'\s+', ' ', text) 
+    text = re.sub(r'\s([?.!"](?:\s|$))', r'\1', text)
+    text = re.sub(r'https?://\S+|www\.\S+', '', text)
+    text = re.sub(r'[^\x00-\x7F]+', '', text)
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
+
+def truncate_to_words(text, max_words=500):
+    words = text.split()
+    return ' '.join(words[:max_words])
+
+def preprocess_description(desc):
+    text = clean_text(desc)
+    text = truncate_to_words(text)
+    return text
 
 def generate_alphanumeric_otp(length=6):
     chars = string.ascii_letters + string.digits

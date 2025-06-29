@@ -4,3 +4,5 @@ server/db.sqlite3
 .vscode/
 server/venv
 *.pem
+*.gguf
+*.whl

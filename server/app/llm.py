@@ -1,7 +1,5 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from torch import compile
+from llama_cpp import Llama
+import os
 
-# Load tokenizer and model (will download if not cached)
-tokenizer = AutoTokenizer.from_pretrained("microsoft/phi-2")
-model = AutoModelForCausalLM.from_pretrained("microsoft/phi-2")
-model = compile(model)
+model_path = os.path.join(os.path.dirname(__file__), "gemma-2-2b-it-Q6_K.gguf")
+llm = Llama(model_path, n_ctx=8192,verbose=False)

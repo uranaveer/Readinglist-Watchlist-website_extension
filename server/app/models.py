@@ -39,6 +39,7 @@ class Post(models.Model):
     link =models.URLField(max_length=2000)
     description = models.TextField()
     processed = models.BooleanField(default=False)
+    approved = models.BooleanField(default=False)
     user = models.ForeignKey(UserData, on_delete=models.CASCADE, related_name="posts")
     created_at= models.DateTimeField(auto_now_add=True)
 
