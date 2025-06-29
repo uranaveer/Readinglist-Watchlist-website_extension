@@ -29,7 +29,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://yourfrontend.com/*"],
+      "matches": ["https://readinglist-watchlist-website-exten.vercel.app/*"],
       "js": ["scripts/inject.js"],
       "run_at": "document_idle"
     },
