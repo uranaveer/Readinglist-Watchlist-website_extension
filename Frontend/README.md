@@ -1,6 +1,6 @@
 # Readinglist-Watchlist-website_extension
 
-This is the **RLW Frontend** built with React, Tailwind CSS, and Axios. It is the user interface for HTSI, supporting search, infinite scroll, profile viewing, and post grouping.
+This is the **RLW Frontend** built with React, Tailwind CSS, and Axios. It is the user interface for RLW, supporting search, infinite scroll, profile viewing, and post grouping.
 
 ---
 
