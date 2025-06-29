@@ -85,13 +85,22 @@ function setupPageWatcher(token) {
     if (currentUrl !== lastUrl) {
       lastUrl = currentUrl;
 
-      if (currentUrl.includes("youtube.com/watch")) {
-        setTimeout(() => {
-          handleYouTubePage(token);
-        }, "5000");
-      } else {
-        handleArticlePage(token);
-      }
+      chrome.storage.sync.get("incognito", (data) => {
+        if (data.incognito) {
+          console.log("Incognito mode is ON — skipping content analysis.");
+          return;
+        }
+
+        if (currentUrl.includes("youtube.com/watch")) {
+          setTimeout(() => {
+            handleYouTubePage(token);
+          }, "5000");
+
+        } else {
+          handleArticlePage(token);
+        }
+        
+      });
     }
   }
 
