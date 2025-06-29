@@ -94,7 +94,7 @@ function setupPageWatcher(token) {
         if (currentUrl.includes("youtube.com/watch")) {
           setTimeout(() => {
             handleYouTubePage(token);
-          }, "5000");
+          }, 5000);
 
         } else {
           handleArticlePage(token);
