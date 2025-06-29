@@ -1,5 +1,5 @@
-# Initialize summarization pipeline (T5-small on CPU)
+from llama_cpp import Llama
+import os
 
-from transformers import pipeline
-
-summarizer = pipeline("summarization", model="t5-small", tokenizer="t5-small", device=-1)
+model_path = os.path.join(os.path.dirname(__file__), "gemma-2-2b-it-Q6_K.gguf")
+llm = Llama(model_path, n_ctx=8192,verbose=False)

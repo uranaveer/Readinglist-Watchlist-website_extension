@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app',
     'rest_framework',
     'corsheaders',
+    'app.apps.AppConfig',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +130,9 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'app.UserData'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+
+CELERY_BROKER_URL = env('CELERY_BROKER_URL')
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
