@@ -5,6 +5,7 @@ import environ
 import secrets
 import string
 import re
+from urllib.parse import urlparse, parse_qs
 
 
 env = environ.Env()
@@ -27,6 +28,18 @@ def preprocess_description(desc):
     text = clean_text(desc)
     text = truncate_to_words(text)
     return text
+
+
+
+import re
+
+def is_youtube_video(url):
+    if not url:
+        return False
+    youtube_regex = r"(https?://)?(www\.)?(youtube\.com|youtu\.be)/"
+    return re.search(youtube_regex, url) is not None
+
+
 
 def generate_alphanumeric_otp(length=6):
     chars = string.ascii_letters + string.digits

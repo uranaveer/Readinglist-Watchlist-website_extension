@@ -1,6 +1,6 @@
 from celery import shared_task
 from .models import Post
-from .utils import preprocess_description
+from .utils import preprocess_description , is_youtube_video
 from .llm import llm
 import re
 
@@ -37,6 +37,7 @@ def generate_summary(post_id):
                 Response:
 
                 """
+
 
             output = llm(prompt, max_tokens=100, temperature=0.7, top_p=0.9, stop=["\n\n", "New Input:"])
             response = output["choices"][0]["text"].strip()
