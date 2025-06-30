@@ -73,7 +73,7 @@ function handleYouTubePage(token) {
     .then((res) => {
       if (res.status === 401) {
         console.warn("🔒 Token expired — requesting refresh");
-        chrome.runtime.sendMessage({ type: "Refresh Token" });
+        chrome.runtime.sendMessage({ type: "Refresh Token", payload });
         throw new Error("Access token expired");
       }
 
@@ -98,7 +98,7 @@ function setupPageWatcher(token) {
       lastUrl = currentUrl;
 
       chrome.storage.sync.get("authToken", (data) => {
-        let token= data.authToken;
+        token= data.authToken;
         if (!token) {
           console.warn("User not logged in ");
           return;
@@ -169,4 +169,26 @@ chrome.storage.sync.get("incognito", (data) => {
 });
 
 
+});
+
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === "RetryPost") {
+    const { token, payload } = msg;
+
+    fetch("https://api.uranaveer.xyz/api/add-post/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log(" Retried post successful:", data);
+    })
+    .catch(err => {
+      console.error(" Retried post failed:", err);
+    });
+  }
 });

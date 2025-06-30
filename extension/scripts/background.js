@@ -20,46 +20,48 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function refreshAccessToken() {
-  chrome.storage.sync.get(["refreshToken"], ({ refreshToken }) => {
-    if (!refreshToken) {
-      console.warn("❌ No refresh token available.");
-      return;
-    }
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(["refreshToken"], ({ refreshToken }) => {
+      if (!refreshToken) return resolve(null);
 
-    fetch("https://api.uranaveer.xyz/api/token/refresh/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ refresh: refreshToken })
-    })
-    .then(res => {
-      if (!res.ok){
-        chrome.storage.sync.remove(["authToken", "refreshToken", "userId"], () => {
-            console.warn("Tokens cleared from storage");
-        });
-        throw new Error("Failed to refresh token");
-      }
-      return res.json();
-    })
-    .then(data => {
-      if (data.access) {
-        chrome.storage.sync.set({ authToken: data.access }, () => {
-          console.log(" Access token refreshed successfully.");
-        });
-      } else {
-        console.error("❌ Invalid refresh response:", data);
-      }
-    })
-    .catch(err => {
-      console.error("❌ Error during token refresh:", err);
+      fetch("https://api.uranaveer.xyz/api/token/refresh/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ refresh: refreshToken })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.access) {
+          chrome.storage.sync.set({ authToken: data.access }, () => {
+            console.log("🔑 Token refreshed");
+            resolve(data.access);
+          });
+        } else {
+          console.error(" Invalid refresh response");
+          resolve(null);
+        }
+      })
+      .catch(err => {
+        console.error(" Refresh error:", err);
+        resolve(null);
+      });
     });
   });
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "Refresh Token") {
-    refreshAccessToken();
+    refreshAccessToken().then((newAccessToken) => {
+      if (!newAccessToken) return;
+
+      chrome.tabs.sendMessage(sender.tab.id, {
+        type: "RetryPost",
+        token: newAccessToken,
+        payload: message.payload
+      });
+    });
   }
 });
 
