@@ -25,6 +25,9 @@ With RLW, you can manage books, articles, and videos seamlessly — from anywher
 ##  Screenshots
 
 **Home Page**  
+![Home](./images/home-img.png)
+
+**User Home Page**  
 ![Home](./images/userhome-img.png)
 
 **User Profile**  
