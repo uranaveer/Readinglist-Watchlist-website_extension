@@ -27,14 +27,12 @@ function Home() {
           Automatically track what you watch and read, summarize it with local AI, and build your knowledge footprint — effortlessly.
         </p>
         <p className="text-gray-500 italic mb-8">Your mind, captured. No effort required.</p>
-        <a
-          href="https://github.com/uranaveer/Readinglist-Watchlist-website_extension"
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to="/login"
           className="bg-black text-white text-lg px-8 py-3 font-semibold rounded-full hover:bg-white hover:text-black border border-black transition shadow-md active:scale-95"
         >
-          🚀 Get Started on GitHub
-        </a>
+          🚀 Get Started
+        </Link>
       </main>
 
       {/* About Extension Section */}
