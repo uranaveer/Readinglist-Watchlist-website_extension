@@ -31,7 +31,7 @@ function handleArticlePage(token) {
     .then((res) => {
       if (res.status === 401) {
         console.warn("🔒 Token expired — requesting refresh");
-        chrome.runtime.sendMessage({ type: "Refresh Token" });
+        chrome.runtime.sendMessage({ type: "Refresh Token", payload });
         throw new Error("Access token expired");
       }
       if (!res.ok) throw new Error("Failed to save");
