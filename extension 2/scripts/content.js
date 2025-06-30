@@ -29,7 +29,13 @@ function handleArticlePage(token) {
     body: JSON.stringify(payload)
   })
     .then((res) => {
+      if (res.status === 401) {
+        console.warn("🔒 Token expired — requesting refresh");
+        chrome.runtime.sendMessage({ type: "Refresh Token" });
+        throw new Error("Access token expired");
+      }
       if (!res.ok) throw new Error("Failed to save");
+      
       return res.json();
     })
     .then((data) => {
@@ -65,6 +71,12 @@ function handleYouTubePage(token) {
     body: JSON.stringify(payload)
   })
     .then((res) => {
+      if (res.status === 401) {
+        console.warn("🔒 Token expired — requesting refresh");
+        chrome.runtime.sendMessage({ type: "Refresh Token" });
+        throw new Error("Access token expired");
+      }
+
       if (!res.ok) throw new Error("Failed to save");
       return res.json();
     })

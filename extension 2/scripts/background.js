@@ -57,14 +57,11 @@ function refreshAccessToken() {
   });
 }
 
-// Set interval to run every 10 minutes
-chrome.runtime.onStartup.addListener(() => {
-  console.log(" Starting 10-min refresh interval");
-
-  setInterval(() => {
-    console.log(" Refreshing token...");
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "Refresh Token") {
     refreshAccessToken();
-  }, 10 * 60 * 1000); // every 10 min
+  }
 });
+
 
 
