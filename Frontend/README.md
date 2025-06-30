@@ -28,6 +28,7 @@ cd Frontend
 # Install dependencies
 npm install
 npm install lucide-react
+npm install axios
 
 # Start the development server
 npm run dev
