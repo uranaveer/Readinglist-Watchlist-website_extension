@@ -49,7 +49,6 @@ For detailed project setup instructions, please refer to the respective README f
 
 → [Frontend setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/Frontend/README.md)  
 → [Server setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/server/README.md) 
-
 → [extension setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/extension/README.md)
 
 
