@@ -45,7 +45,11 @@ With RLW, you can manage books, articles, and videos seamlessly — from anywher
 For detailed project setup instructions, please refer to the respective README files in each folder:
 
 → [Frontend setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/Frontend/README.md)  
-→ [Server setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/server/README.md)
+→ [Server setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/server/README.md) 
+
+→ [extension setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/extension/README.md)
+
+
 
 # Contributors
 [Manideep Avunuri](https://github.com/Manideep-0503)  
