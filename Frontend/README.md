@@ -5,7 +5,7 @@ This is the **RLW Frontend** built with React, Tailwind CSS, and Axios. It is th
 ---
 
 ## Features
-✅ JWT token authentication 
+✅ JWT token authentication  
 ✅ Search users with suggestions  
 ✅ Infinite scroll for posts  
 ✅ Group posts by date  
@@ -14,23 +14,35 @@ This is the **RLW Frontend** built with React, Tailwind CSS, and Axios. It is th
 ---
 
 ## Quick Start
-
+### Step 1: Clone the repository
 ```bash
-# Clone the repository
-git clone https://github.com/uranaveer/Readinglist-Watchlist-website_extension.git
-
-# Move into the project
+git clone https://github.com/uranaveer/Readinglist-Watchlist-website_extension
+```
+### Step 2: Move into the project
+```
 cd Readinglist-Watchlist-website_extension
-
-# Move into the Fronten
+```
+### Step 3: Move into the Frontend
+```
 cd Frontend
-
-# Install dependencies
+```
+### Step 4: Install dependencies
+```
 npm install
 npm install lucide-react
 npm install axios
-
-# Start the development server
+```
+### Step 5: Start the development server
+```
 npm run dev
+```
+
+---
+🌐 Deployment  
+
+The RLW Frontend is hosted on Vercel for seamless production deployment:  
+
+👉 https://readinglist-watchlist-website-exten.vercel.app/
+
 
 
