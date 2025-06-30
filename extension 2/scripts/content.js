@@ -97,21 +97,29 @@ function setupPageWatcher(token) {
     if (currentUrl !== lastUrl) {
       lastUrl = currentUrl;
 
-      chrome.storage.sync.get("incognito", (data) => {
-        if (data.incognito) {
-          console.log("Incognito mode is ON — skipping content analysis.");
+      chrome.storage.sync.get("authToken", (data) => {
+        token= data.authToken;
+        if (!token) {
+          console.warn("User not logged in ");
           return;
         }
+        chrome.storage.sync.get("incognito", (data) => {
+          if (data.incognito) {
+            console.log("Incognito mode is ON — skipping content analysis.");
+            return;
+          }
 
-        if (currentUrl.includes("youtube.com/watch")) {
-          setTimeout(() => {
-            handleYouTubePage(token);
-          }, 5000);
+          if (currentUrl.includes("youtube.com/watch")) {
+            setTimeout(() => {
+              handleYouTubePage(token);
+            }, 5000);
 
-        } else {
-          handleArticlePage(token);
-        }
-        
+          } else {
+            handleArticlePage(token);
+          }
+          
+        });
+
       });
     }
   }
