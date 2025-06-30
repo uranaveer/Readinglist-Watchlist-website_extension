@@ -25,7 +25,7 @@ With RLW, you can manage books, articles, and videos seamlessly — from anywher
 ##  Screenshots
 
 **Home Page**  
-
+![Home](./images/userhome-img.png)
 
 **User Profile**  
 ![Profile](./images/profile-img.png)
@@ -37,7 +37,7 @@ With RLW, you can manage books, articles, and videos seamlessly — from anywher
 ![Extension](./images/extension-img.png)
 
 **Edit Profile**
-!(https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/images/editprofile-img.png)
+![EditProfile](./images/editprofile-img.png)
 
 ---
 
