@@ -36,9 +36,9 @@ Built with a modern React + Tailwind frontend and a scalable API backend, RLW ma
 
 ---
 
-⚙️ Project Setup
+# Project Setup  
 For detailed project setup instructions, please refer to the respective README files in each folder:
 
-→ [./Frontend/README.md] (Frontend setup )  
-→ [./server/README.md] (Server setup)
+→ [Frontend setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/Frontend/README.md)  
+→ [Server setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/server/README.md)
 
