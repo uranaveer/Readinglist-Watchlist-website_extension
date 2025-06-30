@@ -98,7 +98,7 @@ function setupPageWatcher(token) {
       lastUrl = currentUrl;
 
       chrome.storage.sync.get("authToken", (data) => {
-        token= data.authToken;
+        let token= data.authToken;
         if (!token) {
           console.warn("User not logged in ");
           return;
