@@ -47,3 +47,8 @@ For detailed project setup instructions, please refer to the respective README f
 → [Frontend setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/Frontend/README.md)  
 → [Server setup](https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/server/README.md)
 
+# Contributors
+[Manideep Avunuri](https://github.com/Manideep-0503)  
+[Ranaveer Umeda](https://github.com/uranaveer)  
+[Rajneesh Tetarwal](https://github.com/rajneesh-tetarwal)
+
