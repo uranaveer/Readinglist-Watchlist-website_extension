@@ -234,6 +234,7 @@ def add_post(request):
         return Response({"message":"link already exits for the user"},status=status.HTTP_400_BAD_REQUEST)
     post = Post(title=title,link=link,description=description)
     post.user=user
+    print(f"[DEBUG]Approved: {post.approved}")
 
     post.save()
 
