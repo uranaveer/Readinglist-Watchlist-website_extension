@@ -1,20 +1,24 @@
-# Readinglist-Watchlist-website_extension
+#  Readinglist-Watchlist Website Extension (RLW)
 
-The **Readinglist-Watchlist Website Extension (RLW)** is a powerful, user-friendly platform for managing your reading lists and watchlists, whether it’s books, articles, or shows. With RLW, you can search, group, and share what you’re exploring — plus quickly save items on the go using the included browser extension.
+The **Readinglist-Watchlist Website Extension (RLW)** is a powerful personal content management platform that helps you track, group, and share your reading and watchlist activities. The project consists of a React + Tailwind frontend, a Django + DRF backend, and a browser extension for convenient content capturing.
 
-Built with a modern React + Tailwind frontend and a scalable API backend, RLW makes personal content tracking easier than ever.
+With RLW, you can manage books, articles, and videos seamlessly — from anywhere, at any time.
+
 
 ---
 
 ##  Features
 
-✅ JWT token authentication  
-✅ Search users with suggestions  
-✅ Infinite scroll for posts  
+✅ JWT-based authentication  
+✅ User search with suggestions  
+✅ Infinite scrolling for posts  
 ✅ Group posts by date  
-✅ Dedicated profile pages with user posts  
-✅ Clean, responsive UI  
-✅ Browser extension to quickly save content  
+✅ Profile pages with user posts  
+✅ Automatic post summarization using local LLM (Gemma-2-2B-it-Q6_K)  
+✅ Background tasks using Celery + Redis  
+✅ Cloudflared tunnel integration for secure local testing  
+✅ Responsive and clean UI  
+✅ Browser extension for quick captures  
 
 ---
 
