@@ -24,19 +24,20 @@ With RLW, you can manage books, articles, and videos seamlessly — from anywher
 
 ##  Screenshots
 
-> *Replace these placeholders with your actual images in the repository's `images/` folder.*
-
 **Home Page**  
-![Home](./images/homepage.png)
+
 
 **User Profile**  
-![Profile](./images/profile.png)
+![Profile](./images/profile-img.png)
 
 **Search with Suggestions**  
-![Search](./images/search.png)
+![Search](./images/searchbar-img.png)
 
 **Extension Popup**  
-![Extension](./images/extension.png)
+![Extension](./images/extension-img.png)
+
+**Edit Profile**
+!(https://github.com/uranaveer/Readinglist-Watchlist-website_extension/blob/main/images/editprofile-img.png)
 
 ---
 
