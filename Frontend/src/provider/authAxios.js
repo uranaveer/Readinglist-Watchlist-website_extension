@@ -1,11 +1,11 @@
 // src/utils/authAxios.js
 import axios from "axios";
 
-axios.defaults.baseURL = 'https://api.uranaveer.xyz/';
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 // Create an Axios instance for authenticated requests
 const authAxios = axios.create({
-  baseURL: "https://api.uranaveer.xyz/", // change this to your backend's base URL
+  baseURL: import.meta.env.VITE_API_URL, // change this to your backend's base URL
   //baseURL: "https://api.uranaveer.xyz/",
 });
 
