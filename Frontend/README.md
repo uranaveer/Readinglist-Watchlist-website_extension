@@ -32,6 +32,9 @@ npm install
 npm install lucide-react
 npm install axios
 ```
+### Step 5: Add ENV variables
+* Create a .env file in root Frontend directory and add `VITE_API_URL=Your_server_url`  
+* Add your server base url, if you are running your server locally use http://localhost:8000/
 ### Step 5: Start the development server
 ```
 npm run dev
