@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  axios.defaults.baseURL = 'https://api.uranaveer.xyz/';
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL;
   const [token, setToken_] = useState(localStorage.getItem("token"));
 
   // Update both token and refreshToken in state/storage
